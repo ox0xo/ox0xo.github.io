@@ -34,41 +34,40 @@ type: page
 3日間の研修でTCP/IPプロトコルの概要と具体的なアプリケーションの扱い方を学びます。
 3日目には5分程度のプレゼンテーションをしてもらいます。
 1つ以上のアプリケーションをテーマに選び、実際に動作する環境と合わせてアプリケーションの目的や仕組みなどを紹介して下さい。
-### [ロギング](markdown/logging_rlogin.md)
-### [サービス制御](markdown/presettings.md)
-### [TCP/IPパケット概要](markdown/wireshark.md)
-### [Mailの観測](markdown/mail.md)
-### [HTTPの観測](markdown/http.md)
-### [HTTPSの観測](markdown/https.md)
-### [TELNET/SSHの観測](markdown/remote_login.md)
-### [ドメインの概要](markdown/dns_zone.md)
-### [DNSの観測](markdown/dns.md)
-### [Proxyの観測](markdown/proxy.md)
-### [DNSレコードの作成](markdown/change_dns.md)
-### [SNMPの観測](markdown/snmp.md)
+### [ロギング](logging_rlogin)
+### [サービス制御](presettings)
+### [TCP/IPパケット概要](wireshark)
+### [Mailの観測](mail)
+### [HTTPの観測](http)
+### [HTTPSの観測](https)
+### [TELNET/SSHの観測](remote_login)
+### [ドメインの概要](dns_zone)
+### [DNSの観測](dns)
+### [Proxyの観測](proxy)
+### [DNSレコードの作成](change_dns)
+### [SNMPの観測](snmp)
 
 ## フェーズ2
 3日間の研修でデータリンク層、ネットワーク層、トランスポート層の詳細を学びます。
 3日目には受講者同士の仮想マシンを連携させたシンプルなネットワークを構築し、設計と実装のポイントを5分程度で簡潔に説明して頂きます。
 ルーティングを駆使した複雑なネットワークはPhase3で取り扱うため今は考えなくても結構です。
-### [サブネット](markdown/ipsubnet.md)
-### [ブリッジを使う](markdown/bridge.md)
-### [アドレスの一意性](markdown/unique_addressing.md)
-### [DHCPの観測](markdown/dhcp.md)
-### [VLANを使う](markdown/vlan.md)
-### [スパニングツリー](markdown/stp.md)
-### [ファイアウォール](markdown/firewall.md)
+### [サブネット](ipsubnet)
+### [ブリッジを使う](bridge)
+### [アドレスの一意性](unique_addressing)
+### [DHCPの観測](dhcp)
+### [VLANを使う](vlan)
+### [スパニングツリー](stp)
+### [ファイアウォール](firewall)
 
 ## フェーズ3
 4日間（水、木、金、火）の研修でルーティングの詳細を学びます。
 今回はルーティングの演習発表は行いません。
 その代わり次のフェーズでこれまでの研修全体を踏まえたネットワークを構築し設計と実装のポイントを説明して頂きます。
-## [構築の流れ](markdown/architect_tips.md)
-## [スタティックルーティング](markdown/routing.md)
-## [ファイアウォールマニアクス](markdown/firewall.md)
-## [DMZ](markdown/dmz.md)
-## [ファイアウォールマニアクス](firewall.md)
-## [OSPF](markdown/ospf.md)
-## [BGP](markdown/bgp.md)
-## [大規模ネットワークサンプル1](markdown/practice1.md)
-## [大規模ネットワークサンプル2](markdown/practice2.md)
+### [構築の流れ](architect_tips)
+### [static routing](routing)
+### [DMZ](dmz)
+### [firewall maniacs](firewall)
+### [OSPF](ospf)
+### [BGP](bgp)
+### [Network sample1](practice1)
+### [Network sample2](practice2)
