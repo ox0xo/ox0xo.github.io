@@ -10,6 +10,34 @@ type: page
 {:toc}
 
 ## 総合案内
+
+* 目的
+  - マスタリングTCP/IP入門編の範囲の会話が出来るようになる
+  - TCP/IPプロトコルスタックを自分の言葉で説明出来るようになる
+  - 各レイヤーの特性を生かしたネットワークを構築できるようになる（オプション）
+
+* 対象者
+  - 必須
+    - 何らかの形でインターネットに触れたことがある人
+    - IT業界でエンジニアとして仕事をしたいと考える人
+  - 尚良し
+    - パソコンで文章作成が可能なレベルのキーボード操作ができる人
+    - 趣味などで日常的にパソコンを操作している人
+
+* 期間
+  - 2018-07-03（火）～2018-07-23（金）の13日間
+
+* 受講条件
+  - [マスタリングTCP/IP入門編](https://www.amazon.co.jp/dp/4274068765)を持参すること
+  - 次の要件を満たすPCを持参すること
+    - Wi-Fi経由でインターネットに接続出来る
+    - 次のアプリケーションをインストール出来る
+      - [Wireshark](https://www.wireshark.org/)
+      - [VirtualBox](https://www.virtualbox.org/)
+      - [RLogin](https://github.com/kmiya-culti/RLogin/)
+      - [Becky!](http://www.rimarts.co.jp/becky-j.htm)
+      - [TWSNMP](http://www.twise.co.jp/twsnmp.html)
+
 * WiFiの設定
 
   研修中のインターネット通信はWiFi経由で行ってください。
@@ -23,13 +51,6 @@ type: page
 * OneDriveの設定
 
   メールに添付できないファイルはOneDriveで共有します。
-
-* 必須アプリケーション
-  - VirtualBoxのインストール + CentOS7.ovaのインポート
-  - Becky!のインストール
-  - Wiresharkのインストール
-  - RLoginのインストール
-  - TWSNMPのインストール
 
 ## フェーズ1
 3日間の研修でTCP/IPプロトコルの概要と具体的なアプリケーションの扱い方を学びます。
