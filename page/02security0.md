@@ -11,4 +11,4 @@ type: page
 
 ## DNS
 
-* [DNSキャッシュポイズニング](dns-cache-poizoning)
+* [DNSキャッシュポイズニング](dns_cache_poizoning)

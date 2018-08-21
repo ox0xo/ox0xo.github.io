@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Networking
+title: TCP/IP
 permalink: /networking/
 icon: globe
 type: page
@@ -67,7 +67,7 @@ type: page
 ### [Network 環境構築](practice1)
 
 ## FAQ
-* [IPsec-VPNでNATを超えるためのカプセル化にはなぜUDPが使われるの？](networking-faq#nat-t)
-* [演習用DNSから外部にDNSリクエストが送信されているのは何故？](networking-faq#再帰問い合わせ)
-* [sshでログインするのに時間がかかるのはなぜ？](networking-faq#sshdelay)
-* [設定が正しいのにブリッジ接続できないのはなぜ？](networking-faq#promiscuous)
+* [IPsec-VPNでNATを超えるためのカプセル化にはなぜUDPが使われるの？](networking_faq#nat-t)
+* [演習用DNSから外部にDNSリクエストが送信されているのは何故？](networking_faq#再帰問い合わせ)
+* [sshでログインするのに時間がかかるのはなぜ？](networking_faq#sshdelay)
+* [設定が正しいのにブリッジ接続できないのはなぜ？](networking_faq#promiscuous)

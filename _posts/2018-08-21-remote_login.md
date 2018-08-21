@@ -3,8 +3,8 @@ layout: post
 title:  "リモートログインの概要"
 date:   2018-08-21
 permalink: /networking/:title
-categories: ssh
-tags: ssh telnet rlogin logging
+categories: TCP/IP
+tags: ssh telnet RLogin
 excerpt: リモートログインに関するポストです
 mathjax: false
 ---

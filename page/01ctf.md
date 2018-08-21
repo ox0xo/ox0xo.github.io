@@ -11,4 +11,4 @@ type: page
 
 ## Binary
 
-* [バイナリ解析の基礎](ctf-binary-01)
+* [バイナリ解析の基礎](ctf_binary_01)

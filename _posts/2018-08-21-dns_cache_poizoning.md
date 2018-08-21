@@ -3,8 +3,8 @@ layout: post
 title:  "DNSキャッシュポイズニング"
 date:   2018-08-21
 permalink: /security/:title
-categories: DNS
-tags: pwn, dns
+categories: Attack&Defense
+tags: DNS PWN CVE-2008-1447 CVE-2008-4194
 excerpt: DNSキャッシュポイズニングのハンズオンシナリオです
 mathjax: false
 ---

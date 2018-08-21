@@ -4,7 +4,7 @@ title:  "IPアドレスの一意性"
 date:   2018-08-21
 permalink: /networking/:title
 categories: TCP/IP
-tags: ip mac
+tags: ARP IP
 excerpt: IPアドレスやMACアドレスの一意性に関するポストです
 mathjax: false
 ---

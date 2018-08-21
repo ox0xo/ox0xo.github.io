@@ -3,8 +3,8 @@ layout: post
 title:  "サービス制御"
 date:   2018-08-21
 permalink: /networking/:title
-categories: misc
-tags: systemctl
+categories: TCP/IP
+tags: Linux
 excerpt: centos7のサービスを管理する方法に関するポストです
 mathjax: false
 ---
