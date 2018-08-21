@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Attack&Defense
+title: Security
 permalink: /security/
 icon: shield
 type: page
