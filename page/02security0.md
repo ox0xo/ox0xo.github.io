@@ -1,8 +1,8 @@
 ---
 layout: page
-title: Security
+title: Attack&Defense
 permalink: /security/
-icon: lock
+icon: shield
 type: page
 ---
 
