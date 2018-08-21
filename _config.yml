@@ -11,7 +11,8 @@ brief-intro: infosec tutrial
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://ox0xo.github.io" # the base hostname & protocol for your site
 
-permalink: /:year/:month/:day/:title/
+#permalink: /:year/:month/:day/:title/
+permalink: /:categories/:title/
 
 # other links
 #twitter_username: gaohaoyang126
