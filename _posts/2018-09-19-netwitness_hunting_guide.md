@@ -60,7 +60,7 @@ NetWitnessによって提供されるネットワークトラフィックの前�
 - Webshel​​lで検出されたESAルール：このルールは、10分の時間枠内で同じIP送信元と宛先のペアの間で3つのWebシェルが検出されたことを示します。詳細については、RSA ESA Rulesのトピックを参照してください。
 - exeファイルタイプだがexe拡張子ではないアプリケーションルール
 
-## ハンティングパックのデプロイ
+## デプロイ
 
 ハンティングパックのすべてのアイテムをライブで展開することができます。
 
@@ -108,7 +108,7 @@ RSAは、インシデント対応のためのメタグループを含むファ�
 LiveからHunting Pack Luaパーサーを導入することができます。
 Live SearchのUI内で以下にリストされているパーサーを選択し、デプロイメントまたはデコードのサブスクリプションのプロセスを選択します。
 
-### ハンティングパックに含まれるLuaパーサーの一覧
+### Luaパーサー一覧
 
 |表示名|説明|
 |:---:|:---|
@@ -145,7 +145,7 @@ Live SearchのUI内で以下にリストされているパーサーを選択し�
 |windows_executable | Windows実行ファイルを識別し、異常やその他の不審な特徴を分析します。
 |xor_executable_lua | xorまたはhexエンコードされた実行可能ファイルを検出します。|
 
-### Luaパーサーオプションファイル
+### オプションファイル
 
 以下のLua Parserには現在、オプションファイルが関連付けられています。
 - HTTP_lua
@@ -166,7 +166,7 @@ Live SearchのUI内で以下にリストされているパーサーを選択し�
 ```
 注意：パーサーは、デフォルトとカスタマイズされたオプションの両方を使用することはありません。 オプション・ファイルが存在し、その内容をロードできる場合、デフォルトはまったく使用されません。
 ```
-## RSA Netwitness プラットフォーム レポート
+## レポート
 
 RSAはHunting Packの一部として2つのレポートを提供しています。
 
@@ -186,7 +186,7 @@ RSAはHunting Packの一部として2つのレポートを提供しています�
 - Session Analysis
 - File Analysis
 
-## RSA Netwitness プラットフォーム ルール
+## ルール
 
 2つのハンティング・パック・レポートは、以下のルールに依存しています。
 ```
@@ -256,7 +256,7 @@ traffic_flow.luaパーサは、デコーダ上のtraffic_flow_options.luaファ�
 |outbound|RFC1918の送信元からRFC1918ではない宛先への通信
 |lateral|RFC1918の送信元からRFC1918の宛先への通信
 
-## セッション特性メタカテゴリ
+## セッション特性
 
 セッション特性メタカテゴリは、キャプチャされたセッションの技術的側面を調べることによって、このロジックを拡張します。
 これらのストリームでペイロードが送信された場合、ストリームの数、セッションの存続期間、送信されたデータと受信されたデータの比、および分析ロジックを分析者に提供するためにこのロジックの一部を組み合わせます。
@@ -326,7 +326,7 @@ Facebookやトロイの木馬C2プロトコルで注文を取得しているユ�
 |受信VPN接続のクリアテキスト側
 |B2Bまたはパートナーコミュニケーション
 
-# プロトコル分析：HTTP
+# HTTPプロトコル分析
 
 ハイパーテキスト転送プロトコルは、インターネット上で最も広く使用されているプロトコルの1つです。
 ほとんどのSSL/TLS送信でさえ、単にHTTPをトンネリングするだけです。
@@ -659,7 +659,7 @@ JARはペイロード全体にDWORD XORキーを使用していたため、NetWi
 マルウェア作者は、エンコードされたマルウェアをデコードして実行するために、ノンスを用いるワンタイムキーを生成することさえあります。
 これは、アナリストや研究者にとって、完全なパケットキャプチャが必須であるもう一つの理由です。
 
-## その他のHTTPインジケータ
+## その他インジケータ
 
 悪質なソフトウェアを見つけるために組み合わせることができる、HTTPの多くの指標、動作、技術的側面があります。
 ライブコンテンツパーサーは、アナリストのためのインテリジェントな方法で、最も一般的な妥協の指標[IOC]を自動的に組み込みます。
@@ -694,7 +694,7 @@ Base64データは、素早くデコードして、内部にあるもの、た�
 
 ![Figure 13. HTTP with Binary Data in Payload](https://community.rsa.com/servlet/JiveServlet/downloadImage/102-62341-232-466488/HTTP_binary_649x488.png)
 
-## HTTPハンティングのまとめ
+## まとめ
 
 ![Figure 14. Netwitnes Hunting Theory](https://community.rsa.com/servlet/JiveServlet/downloadImage/102-62341-232-466444/NW_HuntingTheory_253x278.png)
 
@@ -932,7 +932,7 @@ Liveにはpoison_ivy.luaパーサーがあり、Poison Ivyが利用する256バ�
 完全な256バイトの交換はIndicator of Compromiseメタカテゴリに警告し、256バイトのビーコンはそれを警告します。
 他のサービスと組み合わせると、このタイプのトロイの木馬や通信プロトコルを検索する際の強力な指標になります。
 
-# その他のプロトコルの異常値
+# その他のアノマリ
 
 HTTP、SSLおよびその他のサービスには、トロイの木馬C2に関連するセッションが通信する場所が多いため、多くの注意が払われています。
 悪意のある行為は必ずしもトロイの木馬に関連付けられているとは限りません。
@@ -1164,7 +1164,7 @@ TCP/53とUDP/53において`service != 53`を調べることで、DNSトンネ�
 
 *under construction*
 
-### カスタムインデックスファイルにエントリを追加するには：
+**カスタムインデックスファイルにエントリを追加するには**
 
 1. あなたのバージョンに応じて：
   - Security Analytics 10.xの場合：Security Analyticsメニューで、Administration> Servicesを選択します。
@@ -1172,6 +1172,7 @@ TCP/53とUDP/53において`service != 53`を調べることで、DNSトンネ�
 2. コンセントレータを選択し、View> Configを選択します。
 3. [ファイル]タブを開きます。
 4. index-concentrator-custom.xmlを選択し、次の行を追加します。
+  ```
   <!-- Traffic Directionality -->
   <key description="Network Name" level="IndexValues" name="netname" format="Text" valueMax="10000"/>
   <key description="Traffic Flow Direction" level="IndexValues" name="direction" format="Text" valueMax="10000"/>
@@ -1182,4 +1183,5 @@ TCP/53とUDP/53において`service != 53`を調べることで、DNSトンネ�
   <key description="Indicators of Compromise" level="IndexValues" name="ioc" format="Text" valueMax="10000"/>
   <key description="Behaviors of Compromise" level="IndexValues" name="boc" format="Text" valueMax="10000"/>
   <key description="Enablers of Compromise" level="IndexValues" name="eoc" format="Text" valueMax="10000"/>
+  ```
 5. NetWitnessからログアウトし、再度ログインします。調査で追加したカスタムキーを表示するには、これを行う必要があります。
