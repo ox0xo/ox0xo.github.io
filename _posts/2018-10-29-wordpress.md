@@ -63,8 +63,8 @@ systemctl start mariadb
 
 # データベースの初期化スクリプトを作成
 cat > /tmp/init.sql << END
-set password for root@localhost=password('wordpress');
-insert into user set user="wpadmin", password=password("wordpress"), host="localhost";
+set password for root@localhost=password('rootpassword');
+insert into user set user="wpadmin", password=password("wpadmin"), host="localhost";
 create database wpdb;
 grant all on wpdb.* to wpadmin;
 flush privileges;
@@ -77,10 +77,10 @@ mysql -u root -D mysql < /tmp/init.sql
 # - rootユーザーのパスワードが変更されていること
 # - wpdbデータベースが作成されていること
 # - wpdbデータベースの権限を持つwpadminユーザーが作成されていること
-echo 'select Db, User from db;'| mysql -u root -D mysql -pwordpress
+echo 'select Db, User from db;'| mysql -u root -D mysql -prootpassword
 
 # wpadminユーザーでログインできることを確認
-echo 'show tables;'|mysql -u wpadmin -D wpdb -pwordpress
+echo 'show tables;'|mysql -u wpadmin -D wpdb -pwpadmin
 ```
 
 ## wordpress
@@ -130,10 +130,10 @@ WordPressのコンテンツデータはデータベースに格納されてい�
 mysqlにアクセスすることで投稿内容を確認できます。
 ```
 # wpdbデータベースにテーブルが増えている事を確認
-echo "show tables;" | mysql -u wpadmin -D wpdb -pwordpress
+echo "show tables;" | mysql -u wpadmin -D wpdb -pwpadmin
 
 # postsテーブル（投稿に関する情報）を確認
-echo "select * from wp_46posts;" | mysql -u wpadmin -D wpdb -pwordpress
+echo "select * from wp_46posts;" | mysql -u wpadmin -D wpdb -pwpadmin
 ```
 # REST API Vulnerability
 WordPress4.7.0からREST APIが実装されました。
