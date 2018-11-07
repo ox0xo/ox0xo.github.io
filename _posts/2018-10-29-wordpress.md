@@ -47,7 +47,7 @@ WordPressは次のコンポーネントから構成されます。
 yum install -y php php-mysql
 
 # phpが動作することを確認
-php -r 'print "hello world\n"'
+php -r 'print "hello world\n";'
 ```
 
 ## Apache httpd
@@ -124,7 +124,7 @@ wordpress公式が古いバージョンのWordPressを配布しています。
 
 ```
 # wordpressのダウンロードと設置
-wget https://ja.wordpress.org/wordpress-4.7-ja.tar.gz -O /tmp/wordpress-4.7-ja.tar.gz
+curl https://ja.wordpress.org/wordpress-4.7-ja.tar.gz -o /tmp/wordpress-4.7-ja.tar.gz
 tar -zxvf /tmp/wordpress-4.7-ja.tar.gz -C /var/www/html/
 mv /var/www/html/wordpress/ /var/www/html/4.7.0/
 
@@ -176,7 +176,7 @@ mysqlにアクセスすることで投稿内容やユーザーデータを確認
 echo "show tables;" | mysql -u wpadmin -D wpdb -pwpadmin
 
 # 投稿に関する情報を確認
-echo "select * from wp_46posts;" | mysql -u wpadmin -D wpdb -pwpadmin
+echo "select * from wp_posts;" | mysql -u wpadmin -D wpdb -pwpadmin
 
 # ユーザー一覧を確認
 echo "select * from wp_users;" | mysql -u wpadmin -D wpdb -pwpadmin
@@ -184,6 +184,29 @@ echo "select * from wp_users;" | mysql -u wpadmin -D wpdb -pwpadmin
 # ユーザー権限を確認
 echo "select * from wp_usermeta where meta_key Like 'wp_capabilities';" | mysql -u wpadmin -D wpdb -pwpadmin
 ```
+
+## WordPress Plugin
+
+最後にプラグインをインストールしましょう。
+これはWordPressに対するログイン履歴を確認するためのものです。
+不正アクセスの有無をモニタリングしやすくなります。
+
+**プラグインの取得**
+
+```
+yum install -y wget zip
+cd /tmp
+wget https://plugins.svn.wordpress.org/aryo-activity-log/tags/2.3.1/ -r -np
+cd /tmp/plugins.svn.wordpress.org/aryo-activity-log/tags/2.3.1/
+find . -name index.html | xargs -n 1 rm -f
+zip -r /var/www/html/plugin.zip *
+```
+
+**プラグインのインストール**
+
+![](/images/wordpress/plugin01.png)
+
+![](/images/wordpress/plugin02.png)
 
 # 攻撃
 
@@ -248,15 +271,15 @@ http://localhost/4.7.0/index.php/wp-json/wp/v2/posts/
 WordPress4.7.0のREST APIには認証バイパスの脆弱性があります。
 例えば以下のpythonコードはWordPress4.7.0のHello World!ページを書き換えます。
 
-悪用を防ぐためaes256で暗号化してあります。パスワードは弊社名の略称です。
+悪用を防ぐためopenssl 1.0.2k-fips aes256で暗号化してあります。パスワードは弊社名の略称です。
 ```
 U2FsdGVkX19wksWBReZsgKq5X6nV2sbk904L/VszoUCFHPCwBxsDc1tHklTmVzLBPJjr2781u90SgiY9o5i4+wUYH0L/vE2B2MM1TVjauPij5NF+IJMzGru9kMhq2lzNJeL1TqKjM23/EzHK5piFXiAVCjy7lSsv3LhhQcmK4dPVf5cSrj7DTrMEBv3zUKCmjScEFOgtvHEefofMs4ZUJq/bi+htXZguLVy7ZBdDajKyY3EgBetvyHVjG+IIPhgh7YyCG6dYR8zsSc8UiMC+WsDZ5IluZNp1YsxPF4uv2PLDY+bVPupVP6tccdF3WeaoLVyG8yM+mLmT3nzXLxXQMa7CW20+8QQW8LNBlo00++uJa5MRkHZkwODanacT/E7o
 ```
 
-Fiddler等のローカルプロキシを使ってREST APIをコールする事も出来ます。
+[Fiddler](https://www.telerik.com/download/fiddler)等のローカルプロキシを使ってREST APIをコールする事も出来ます。
 送信するPOSTリクエストは以下の通りです。
 
-悪用を防ぐためaes256で暗号化してあります。パスワードは弊社名の略称です。
+悪用を防ぐためopenssl 1.0.2k-fips aes256で暗号化してあります。パスワードは弊社名の略称です。
 ```
 U2FsdGVkX19T2S9GM16Rn3P+PPFPGvIL+jolJnOxec9PRAVK/AdeJUax1l5d9k9knMAjAEEz5EXGx8hKSe6//dPLgatOTZ6wJsvu7jgIIiosS3NMZYftSMirq1unxlvg9SeSJGLiOeXCsv5khvfGjs5TszP+l4EJZrLOWytoahMjHZf46AxAhur/bjPDynNYLGQfVqNlDa+peF0L4r4YglusySAbY0FBnQR3t9nzNiXZ8dfK8rJJcWszvpoy7fPJ/IdGmtUaC04jNSJzYVD1Sw==
 ```
@@ -280,10 +303,13 @@ ksesの影響を受けずにXSSが出来るような手段が必要です。
 このセッションでは、あなたは敢えて脆弱性のあるPluginをWordPressにインストールしたはずです。
 意図したとおりに[Activity Log Plugin](https://ja.wordpress.org/plugins/aryo-activity-log/)がインストールされていれば次の攻撃を試す価値があります。
 
-悪用を防ぐためaes256で暗号化してあります。パスワードは弊社名の略称です。
+悪用を防ぐためopenssl 1.0.2k-fips aes256で暗号化してあります。パスワードは弊社名の略称です。
+
 ```
 U2FsdGVkX1+coBOcBKCzqamqzRdhiX1JjgOV4C8E4yI9RaEtIXVyOLV057UnGTF79q30sZ85xxYwjpjy8C9SAgFmyNfoUZ0EaPHVUbj0P2z1vVOL/LFwLJ+I0sKOprBT0CLoopq448a3AJM2OocUas3tOdGanxZvYKwk5Q1cD4uKTlKp2vz70uNViueyTisAhKradz0YaeEO/7sVw8u9N/xqXUrZLe0CJl8bBLnKGM2vo4t4+eBHHMejBLc7f5ASrKUYazUzYpNVs/aJRronilUT13n4an0eI/kiZd3rgBSY9MkNklpYqnl9pkS4Zyj8
 ```
+
+1度のリクエストで注入できるスクリプトの長さは55byteです。
 
 ![](/images/wordpress/fiddler04.png)
 
@@ -294,6 +320,11 @@ U2FsdGVkX1+coBOcBKCzqamqzRdhiX1JjgOV4C8E4yI9RaEtIXVyOLV057UnGTF79q30sZ85xxYwjpjy
 セキュリティを強化するPluginが攻撃の糸口になるとは皮肉なものですね。
 
 ![](/images/wordpress/log_activity01.png)
+
+おっと、次のトレーニングに移る前に今注入したスクリプトを削除しておきましょう。
+Activity LogのSettingsからReset Databaseを選択するだけです。
+
+![](/images/wordpress/plugin03.png)
 
 ## 任意コード実行
 
@@ -308,13 +339,10 @@ U2FsdGVkX1+coBOcBKCzqamqzRdhiX1JjgOV4C8E4yI9RaEtIXVyOLV057UnGTF79q30sZ85xxYwjpjy
 XSSを起動するにはActivity Logを表示する必要があります。
 本来は管理者のアクセスを待つ場面ですが、このセッションではあなたが管理者に代わってXSSを起動してください。
 
-悪用を防ぐためaes256で暗号化してあります。パスワードは弊社名の略称です。
+悪用を防ぐためopenssl 1.0.2k-fips aes256で暗号化してあります。パスワードは弊社名の略称です。
+
 ```
 U2FsdGVkX18/WB2d2+ipDPcSVsIZ62Px7VNRwC0LmdXjCO0CeknoJqnPW/Dnzn9YcikfpcrEWVbdzBKbyo5Cn3OfIkYgpJvdvPXLq1Doww8OYjA7H7EdFKFRRl5LhMGHdx3Xn9QM0Sc0uvkCn27E+pdxoUJRniX9uQd9frMynipZsOWOU6pxtqAZEd3kI3/LDOUjJeubosY8/05nct4bfVzGf/YZO5qf6v6MAOHEeCIqqQ7vZi2FyLrTte8eMkkpjm2soYrcUWRafcX/xyYZsu4YsyPX3DjBB+wzUKzo+0eho4b+Ou3h2KPwpeZNdSaAk8HcGj4ncoQWgXDasCekndmG2Vc5SSwsZkW0Pn47JjsSheY0EJL6P6KCyMuv4Bf1fGKu5YQUMo5hpWBKQZaEGDClw3I68jUBupjVPlXJl6oYjhq3IOl70+QtA1qbsBTOzz1vRtSL6bylrbcxsPjlQA==
-```
-↓ 参考のために整形
-```
-U2FsdGVkX18zqMrMd7J7zH5zoUm4c2y88uH778CNivZkXzZVnPAQG3Bg/flqLYWNMVlhw68SG/EaA6tAXjG9Zx0cAhtXVoRK32bEkeTZ9gGcvZKm/Q0tJXMQNa6C9/Kkd/w6RJLQ/1vidYMsLOkg54HogdF9y3hPiWufYaASvcCOT/lFkuOpLZwRSC0Kx+binmwEfSifjSzGJhgd2U7JMWtbLV7iKrul5UiXbDfpOKKr0QsZplOrlViIvfqIGrSAcB02LY85Z6G4EKB+aMJlPRMrdDojyfPP452BAQVzUORK42KPFJoXgyuHMKHC1E2VNpiNJjIScOB+SkwUbyWejUsV3fCXvKZZzZX11AHPEGZ2pEI86zTMEcsnAyYKbHpjMVu5xQU2uGUWnvXBaTP1Ke01016L02EXIvAeUlt+VTCbcG1LdwvVoQJbn61g0YoXrhBIOQVjA+ijwB5S8gVPRQevIJwPb3H/eqUfy8/BobK5VdwLe5uwuxrGUG7mFmPg6CqGsyZw6Tn+i37OZ6jMGoSzimizSHfeExVxoBFH0FM=
 ```
 
 ダッシュボードから 外観>テーマの編集>テーマヘッダー を確認するとXSSで注入されたphpコードが確認できます。
@@ -336,7 +364,7 @@ phpinfoの出力についてはセッションの最初に確認しましたね�
 WordPressデータベースを操作してあなただけが使える特権ユーザーを作成してみましょう。
 次のワンライナーを使用してください。
 
-悪用を防ぐためaes256で暗号化してあります。パスワードは弊社名の略称です。
+悪用を防ぐためopenssl 1.0.2k-fips aes256で暗号化してあります。パスワードは弊社名の略称です。
 ```
 U2FsdGVkX1+lrU5qd6vLjVmy8kjGOn4THRV7StgjfP34q0Vfh6ibLsS3G8FpfL60kpkre4Nz8oj/EBny4kaQ6+6AKbv+ZJkyifomgjU/cvnsVpLHcRvF6f7YK2YyWQoWbhHc9iQuij0P6m+kOnkaJ4kXHS1XV8Je4VYeKZsMRZDnlO2XEKgV31Ial9tpPwhuQXLyt+VRh68AV3i9/b6uD4PuLloLvzcNZNgUm02AyDHvvB1kvhI2hvj/yecVHEGgzc22HgoRVknDrCa5kvSGZZcsk7XbvrKb9d4KNfcauey1nFa6YLhrOGocsTqZZ7iR4/cknhpYgOwWeh1MQVXuOxQ9sy3dVluxj965z0/w93191UtQX279D/Dn6xDVgBoncT0MFjb20ZU92K/3YSb4e1Ije6zNgoDXGDCotrCSPvWyLGPEiCBS1s1NfoWpqxXa5S2ud3YZ2GJluLsfQnLIyj21kSZwZwIJ6c/RvqBXK7EgUebfUYPK/y+oDpIz2VGNwGus5QJsfQ1Du8S3poMLAEIFBE6hSsrkwauW//b4JiL0TjzL+vLHHfYLJ7rLPiZL6+ZGvgh057GrD2hFoL4GHNFlNfuGONfSMkYy7D3tNI8ntUrFj6aO3L90lN2Klh1F33JlwcTLSKTQ+i9FrLUOr8YuWddJfLzyC/XiDKc1fO/dNDn0rkZB2uTphS0oW3MS0bnfWtkITvjTFxIhyaY/iyyYXl9Vx54bbSGY/r2BxfmG4+IXSbdSoOXByhxhQrfXiVwTB0n59BkJYzWP3M+2ivqu2g7Vg69aFN40vUhisJNAwDAnoRgGU+96Iz2kx/6pLQibqfHIy4qUIS2nq8nv5g==
 ```
