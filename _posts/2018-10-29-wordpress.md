@@ -287,7 +287,7 @@ U2FsdGVkX1+coBOcBKCzqamqzRdhiX1JjgOV4C8E4yI9RaEtIXVyOLV057UnGTF79q30sZ85xxYwjpjy
 
 ![](/images/wordpress/log_activity01.png)
 
-## Execution: 任意のコード実行
+## Execution: 任意コード実行
 
 おめでとう！あなたはターゲットに不正なスクリプトを注入し、アラートを表示させることに成功しました！
 でも、ちょっと待ってください。
@@ -318,7 +318,7 @@ phpinfoの出力についてはセッションの最初に確認しましたね�
 
 ![](/images/wordpress/xss01.png)
 
-### Persistence: 特権アカウントの作成
+## Persistence: 特権アカウント作成
 
 任意コードが実行できたならターゲットを完全に掌握するまであと一歩です。
 WordPressデータベースを操作してあなただけが使える特権ユーザーを作成してみましょう。
