@@ -438,9 +438,7 @@ Metasploitのコンソールを確認するとコネクトバックが成立し�
 
 # 検知と防衛
 
-## /var/log/httpd/access_log
-
-wp-login.phpへの攻撃の痕跡
+## httpd
 
 ```
 egrep wp-login.php /var/log/httpd/access_log
@@ -450,7 +448,7 @@ egrep wp-login.php /var/log/httpd/access_log
 10.0.2.2 - - [08/Nov/2018:22:31:39 +0900] "POST /4.7.0/wp-login.php HTTP/1.1" 200 3289 "-" "Fiddler"
 ```
 
-テンプレート改ざんの痕跡
+## WordPressテンプレート
 ```
 pwd
 /var/www/html/4.7.0/wp-content/themes/twentyseventeen
