@@ -423,7 +423,7 @@ Metasploitのコンソールを確認するとコネクトバックが成立し�
 
 # 検知と防衛
 
-WordPress Codexが提供する[Wiki](wpdocs.osdn.jp/WordPress_の安全性を高める)にセキュリティ向上のためのベストプラクティスがまとめられています。
+WordPress Codexが提供する[Wiki](https://wpdocs.osdn.jp/WordPress_の安全性を高める)にセキュリティ向上のためのベストプラクティスがまとめられています。
 いくつかの防衛策を試してみましょう。
 
 ## httpd
@@ -460,7 +460,7 @@ deny from all
 </Files>
 ```
 
-# MySQL
+## MySQL
 
 攻撃が上手くいかなかった場合にエラーが出力されることがあります。
 次のログにはテーブルの主キー制約に触れたためINSERTクエリが失敗したことが記録されています。
