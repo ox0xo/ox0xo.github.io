@@ -498,6 +498,43 @@ echo "define('DISALLOW_FILE_MODS',true);" >> wp-config.php
 
 ![](/images/wordpress/security01.png)
 
+## ネットワークパケット
+
+ネットワークパケットを取得していればさらに詳細な分析が出来ます。
+次のパケットはREST APIの脆弱性を突いた攻撃の最中に取得したものです。
+通常のアクセスとは異なるUser-Agentが使われています。
+パケットを展開してHTTPヘッダを精査すれば不審なデータが送信されていることも確認できます。
+
+![](/images/wordpress/pcap01.png)
+
+次のパケットはWPScanによる脆弱性スキャンの最中に取得したものです。
+1秒間に大量のGETリクエストが送信されています。
+WordPressの設定ファイルをバックアップしたまま放置していたらこのスキャンで検知されてしまいます。
+
+![](/images/wordpress/pcap02.png)
+
+次のパケットはリバースシェルにアクセスしている最中に取得したものです。
+ストリームインデックスが変わらないことに注目してください。
+リバースシェルの操作中はTCPコネクションが維持されるため長時間にわたってTCPセッションが継続します。
+
+![](/images/wordpress/pcap03.png)
+
+80秒後にセッションが終了しました。
+通常のHTTPアクセスと比較すればこの時間がどれほど長いのか理解できます。
+
+また、C2サーバから送られるパケットにPSHフラグが立っている事にも注目してください。
+PSHは送信したパケットをバッファから速やかにフラッシュさせるためのフラグです。
+コマンドに対して即座に応答を返す必要があるTELNETなどのアプリケーションで用いられます。
+
+![](/images/wordpress/pcap04.png)
+
+リバースシェルに関するパケットが平文で送受信されている場合は内容を読み取ることが出来ます。
+
+![](/images/wordpress/pcap05.png)
+
+ITシステムの多くがネットワークに接続されている現状においてネットワークパケットの分析は防御側に非常に大きなアドバンテージをもたらします。
+ネットワークパケットはログに比べてサイズが大きく分析の手間もかかるため[RSA Netwitness](https://www.rsa.com/ja-jp/products/threat-detection-response/rsa-netwitness-logs-packets)や[NetAgent PacketBlackHole](http://www.packetblackhole.jp/)のようなフォレンジックツールの採用が望まれます。
+
 # まとめ
 
 このセッションを通じてあなたはWordPressでWebサイトを構築する最低限のノウハウを得ました。
