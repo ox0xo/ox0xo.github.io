@@ -4,7 +4,7 @@ title:  "WordPress Build & Crack"
 date:   2018-10-29
 permalink: /security/:title
 categories: Security
-tags: WordPress
+tags: WordPress Fiddler CVE-2018-8729 Metasploit WPScan
 excerpt: WordPressの構築とクラッキング
 mathjax: false
 ---
@@ -219,13 +219,13 @@ WoredPress Coreのバージョンや使用されているPluginのバージョ�
 
 ```
 # 基本的な情報を列挙する
-wpscan --url http://172.16.0.254/4.7.0/ --wp-content-dir wp-content
+sudo wpscan --url http://172.16.0.253/4.7.0/ --wp-content-dir wp-content
 
 # ユーザーアカウントを列挙する
-wpscan --url http://172.16.0.254/4.7.0/ --wp-content-dir wp-content --enumerate u
+sudo wpscan --url http://172.16.0.253/4.7.0/ --wp-content-dir wp-content --enumerate u
 
 # ユーザーアカウントを指定してパスワードリストの中から一致する物を全探索する
-wpscan --url http://172.16.0.254/4.7.0/ --wp-content-dir wp-content --usernames wpuser --passwords /tmp/password
+sudo wpscan --url http://172.16.0.253/4.7.0/ --wp-content-dir wp-content --usernames wpuser --passwords /tmp/password
 ```
 
 ブルートフォースを行う際は、質の良いパスワードリストの入手が課題になります。
@@ -263,7 +263,7 @@ WordPress4.7.0のREST APIには認証バイパスの脆弱性があります。
 例えば以下のPOSTリクエストはWordPress4.7.0のHello World!ページを書き換えます。
 [Fiddler](https://www.telerik.com/download/fiddler)等のローカルプロキシを使ってPOSTリクエストを送信してみましょう。
 
-悪用を防ぐためopenssl 1.0.2k-fips aes256で暗号化してあります。パスワードは弊社名の略称です。
+悪用を防ぐため[openssl aes-256-cbcで暗号化してあります。](https://gist.github.com/ox0xo/6e7a3477caf923ef7889ffe8843ccd7d)パスワードは弊社名の略称です。
 ```
 U2FsdGVkX193yY0WXq/xfbjjLXY6fumwnxKRiYzQ7i3r+CX7aENXMdK52Z649OPddaaak/xbQKS7W8akxT6tdQ/jReGS8OVCuWFYM91iDh2fy8emdpBpGpM/kdrMRCbUpkMs1630RsWlS96QNJTiwVM6CL8RL4XlTDKlb7T6pj3z/S2mHghljWp73tBrKJfyGaZ7VMyxqNq80sbijplGXTe9tdsdPU6HM+n/ZCsNvcXvNS4MqG8P6709nGDaeEUIfmxzOUNJBulXChPCzhx1nQ==
 ```
@@ -288,7 +288,7 @@ WordPressにはksesというセキュリティ機能が有り、XSSに繋がる�
 実はこのプラグインにはXSSの脆弱性である[CVE-2018-8729](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-8729)があります。
 意図したとおりにActivity Log Pluginがインストールされていれば次の攻撃を試す価値があります。
 
-悪用を防ぐためopenssl 1.0.2k-fips aes256で暗号化してあります。パスワードは弊社名の略称です。
+悪用を防ぐため[openssl aes-256-cbcで暗号化してあります。](https://gist.github.com/ox0xo/6e7a3477caf923ef7889ffe8843ccd7d)パスワードは弊社名の略称です。
 
 ```
 U2FsdGVkX1+coBOcBKCzqamqzRdhiX1JjgOV4C8E4yI9RaEtIXVyOLV057UnGTF79q30sZ85xxYwjpjy8C9SAgFmyNfoUZ0EaPHVUbj0P2z1vVOL/LFwLJ+I0sKOprBT0CLoopq448a3AJM2OocUas3tOdGanxZvYKwk5Q1cD4uKTlKp2vz70uNViueyTisAhKradz0YaeEO/7sVw8u9N/xqXUrZLe0CJl8bBLnKGM2vo4t4+eBHHMejBLc7f5ASrKUYazUzYpNVs/aJRronilUT13n4an0eI/kiZd3rgBSY9MkNklpYqnl9pkS4Zyj8
@@ -319,7 +319,7 @@ Activity LogのSettingsからReset Databaseを選択するだけです。
 ここからは、どのようなスクリプトを用意すればターゲットに致命的なバックドアを作成できるのかを学びます。
 
 今回、注入したいスクリプトは次の通りです。
-悪用を防ぐためopenssl 1.0.2k-fips aes256で暗号化してあります。パスワードは弊社名の略称です。
+悪用を防ぐため[openssl aes-256-cbcで暗号化してあります。](https://gist.github.com/ox0xo/6e7a3477caf923ef7889ffe8843ccd7d)パスワードは弊社名の略称です。
 
 ```
 U2FsdGVkX1+Rh7jbi2fXs9n9B5JhXI6qy+M8rW0VhErb+AM8ZkAfh9AxkBkqBtCjjr+UNy7Hd9c0bQn286AGW+aIYi+SZEUzFxhZLso3+sNAqbWv9JE5R3P4WyENMlfJKQZrpE76qj5ijJAEQATCMj6cPEXLXv1lTaNyFptwlJ0ZIynLJxqUGunKv8miYZXywT5MgNXbJt/0hX9ktfqnClcmOwH/XhI0mEoYHxOVoMtOc1rd8xJmB+SpLUombHH8M10Z5vRoU3m5VdrYZsbHJTP07LyTGCRZvMdqkyKQbUiYA9ouyibOg2WEIRdBNWRxtTH3vR0DE0X09nmS+e0p5iEQ16YP93fLLQtbgcmRyEAyLQaXHvS2DXAuwhFsx/osZ9h9dPu1s6IzdNv/JpQ9nJx9xViuht9AWMIryVPLMXtVT93UIUvKLlGslVpJLyPg5PghI1Lpc0PXgTNdlHuSFg==
@@ -355,7 +355,7 @@ phpinfoの出力についてはセッションの最初に確認しましたね�
 WordPressデータベースを操作してあなただけが使える特権ユーザーを作成してみましょう。
 
 先ほど用意したスクリプトファイルを次の通り書き換えてください。
-悪用を防ぐためopenssl 1.0.2k-fips aes256で暗号化してあります。パスワードは弊社名の略称です。
+悪用を防ぐため[openssl aes-256-cbcで暗号化してあります。](https://gist.github.com/ox0xo/6e7a3477caf923ef7889ffe8843ccd7d)パスワードは弊社名の略称です。
 
 ```
 U2FsdGVkX1/n5qm6J2A2HGhAjkCvvB4kYURpJii4rxjey7zqupEtg3zdiGi1srmM8cOon8y4ueEfZBzYU51ajcumB0L3B53WdU4XtHYvM2Gn0QuisNcU0E69QedesS/vfluTNoCUd1lh83o7+39FB32auUXdiBBrFEcALstugMg+ui+RKLNeQKGFKp6ckAI+NZyY4gE8HDfDvsYlQ0jtbd7ZBKAgY8KpBh00BUl+XGeAp8V8rGqQSQhhVAOXAXEz9WEqi8N2nBkR73ueeY2sLZDejGVsH+vob/iGOdUNTHImkvDtGQv/eLanPeKM6+Uo7FirOgtI79WH6AHP5IhY8Bmc6l86baH9djDyOlywcczEBm+Ynb+LwXYjKGgpsdoKfftPuXcul8TF2MGMVKsqTAx2M0+7IGRZHFr8lOcmXXN7T05cMWq7JKQhH2GnlWTLVZzcimLo7vOYo96a8yBzqskL2U6M2HzPulYMhZ4+LjVrC7saa3fxa7/3JfFjkJumcppimKqp7CxEKzZ2hykxTbuNLmSZ2BS/5XeAa/NH0eSZ/ucy3T/ngouxzRm8Md5YK5L/pKLdcvBTb+4B5PQQrPD4NywEKmjs7h2t9UiQRuARsQ+UzZlGoS1UoyanGVkeefKVBbSsqA8tv1s9LhVY9o5kkjdf2zwI9KNvS0XgM2cf7gVDMLn5FTZtwfMT5crIXyJtrFdkEQWclHxAogYQYdheXbHWKGlAEhDeByfxuXDtTkJP1vvPqx3jkigt71+ESR5REsp9czmb8xJBbUuVuSnUR/qqOL23LJ7gG7q0qNvMTWiK5fidLKrHvu5AIbfg
