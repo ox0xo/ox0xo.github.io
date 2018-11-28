@@ -5,7 +5,7 @@ date:   2018-11-28
 permalink: /networking/:title
 categories: TCP/IP
 tags: IPv6
-excerpt: -
+excerpt: 今までIPv4を利用していた人がIPv6をとりあえず使えるようにするために見るべき要素をまとめました
 mathjax: false
 ---
 
