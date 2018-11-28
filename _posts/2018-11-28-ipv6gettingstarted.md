@@ -90,9 +90,9 @@ ff0e::0/16  # グローバルスコープ
 ```
 
 ## IPアドレスの割り当て
-### SLAAC（State Less Address Auto Configuration)
+### SLAAC
 
-IPv6にはIPアドレスを自動的に設定する機能が組み込まれておりSLAACと呼ばれています。
+IPv6にはIPアドレスを自動的に設定する機能が組み込まれておりSLAAC(State Less Address Auto Configuration)と呼ばれています。
 
 1. EUI-64フォーマットのインタフェースIDを取得する
 2. インタフェースIDからリンクローカルアドレスを仮設定する
