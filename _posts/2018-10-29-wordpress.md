@@ -45,7 +45,7 @@ WordPressは次のコンポーネントから構成されます。
 
 ## PHP
 ```
-# phpのインストール (11/20のワークショップ環境ではインストール済みです)
+# phpのインストール
 yum install -y php php-mysql
 
 # phpが動作することを確認
@@ -86,7 +86,7 @@ WordpressのバックエンドDBのMySQLを用意します。
 
 ```
 # MariaDBのインストールと起動
-yum install -y mariadb mariadb-server (11/20のワークショップ環境ではインストール済みです)
+yum install -y mariadb mariadb-server
 systemctl enable mariadb
 systemctl start mariadb
 
@@ -187,8 +187,8 @@ echo "select * from wp_usermeta where meta_key Like 'wp_capabilities';" | mysql 
 
 **プラグインの取得**
 
-11/20のワークショップ環境ではこれらの操作は実施済みです。
-plugin.zipを別途配布しているので確認してください。
+XSSの脆弱性があるActivity Log Pluginのversion2.3.1を取得します。
+
 ```
 yum install -y wget zip
 cd /tmp
