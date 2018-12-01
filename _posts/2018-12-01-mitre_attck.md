@@ -1,11 +1,11 @@
 ---
 layout: post
-title:  "-"
+title:  "MITRE ATT&CK 活用事例"
 date:   2018-12-01
 permalink: /security/:title
 categories: Security
 tags: MITRE ATT&CK
-excerpt: MITRE ATT&CKを実務レベルで活用する具体的な手法を提案します
+excerpt: InternetWeek2018 サイバー攻撃の実態を体系化する「ATT&CK」とふれ合うBoF でLTしたスライドをリバイスしたものです。MITRE ATT&CKを実務レベルで活用する具体的な手法を提案します。
 mathjax: false
 ---
 
