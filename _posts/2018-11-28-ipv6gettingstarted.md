@@ -173,8 +173,6 @@ NSパケットにNAパケットの応答がなければ、そのアドレスを�
        valid_lft forever preferred_lft forever
 ```
 
-### RSパケットとRAパケット
-
 ### DHCPv6
 
 IPv6ではIPv4におけるDHCPと似たDHCPv6というプロトコルが利用されます。
