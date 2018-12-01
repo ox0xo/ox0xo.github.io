@@ -18,7 +18,7 @@ mathjax: false
 サイバーセキュリティ脅威のモデリングや、検知・防衛方法論の開発の基礎として利用されます。
 
 ATT&CKとよく似たセキュリティ・フレームワークとしてLockheed MartinによるCyber Kill Chainがあります。
-日本ではマクニカネットワークスがとても分かりやすく[Cyber Kill Chainの情報]((https://www.macnica.net/solution/security_apt.html/)をまとめています。
+日本ではマクニカネットワークスがとても分かりやすく[Cyber Kill Chainの情報](https://www.macnica.net/solution/security_apt.html/)をまとめています。
 
 Cyber Kill Chainが戦術レベルで記述されているのに対して、ATT&CKは戦術を構成する技術レベルで記述されています。
 プロダクトを組み合わせて多層防御を検討する段階ではCyber Kill Chainを参照し、各プロダクトの設計・運用の段階ではATT&CKを参照するという使い分けが考えられます。
