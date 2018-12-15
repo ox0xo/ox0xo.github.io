@@ -77,7 +77,7 @@ vim docker-compose.yml
 docker-compose up &
 ```
 
-  記述例：docker-compose.ymlにSECRET_KEYを追記する
+- 記述例：docker-compose.ymlにSECRET_KEYを追記する
   ```
   version: '2'
 
@@ -91,7 +91,7 @@ docker-compose up &
         - SECRET_KEY=.ctfd_secret_key
   ```
 
-  出力例：Dockerコンテナビルド完了
+- 出力例：Dockerコンテナビルド完了
   ```
   ctfd_1   | Starting CTFd
   ```
@@ -129,7 +129,7 @@ sudo vim /etc/nginx/conf.d/default.conf
 sudo systemctl start nginx
 ```
 
-  記述例：default.conf
+- 記述例：default.conf
   ```
   server {
     listen 80;
@@ -148,7 +148,7 @@ sudo apt-get install letsencrypt
 sudo letsencrypt certonly --webroot --webroot-path /usr/share/nginx/html -d www.cctf2018.cf
 ```
 
-  出力例：秘密鍵(privkey1.pem)とサーバ証明書(cert1.pem)が生成された様子
+- 出力例：秘密鍵(privkey1.pem)とサーバ証明書(cert1.pem)が生成された様子
   ```
   #
   #$sudo ls -la /etc/letsencrypt/archive/www.cctf2018.cf
@@ -170,7 +170,7 @@ nginxが受け取ったリクエストはローカルポート8000で動作し�
 sudo vim /etc/nginx/conf.d/ssl.conf
 ```
 
-  記述例：ssl.conf
+- 記述例：ssl.conf
   ```
   server {
     listen  443;
@@ -202,7 +202,8 @@ CTFd自身はHTTPで動作しているためリソースのリクエストにHTT
 sudo vim /etc/nginx/conf.d/default.conf
 ```
 
-  記述例：default.conf
+- 記述例：default.conf
+
   ```
   server {
     listen 80;
