@@ -4,7 +4,7 @@ title:  "オンラインCTFを開催する"
 date:   2018-12-15
 permalink: /ctf/:title
 categories: CTF
-tags: CTFd "Let's Encrypt"
+tags: CTFd
 excerpt: CTFdを使ってオンラインCTFを開催する際の一連の手順をまとめたものです
 ---
 
