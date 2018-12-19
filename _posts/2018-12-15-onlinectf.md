@@ -128,6 +128,7 @@ sudo iptables -I INPUT 5 -p tcp -m tcp --dport 80 -j ACCEPT
 sudo iptables -I INPUT 5 -p tcp -m tcp --dport 443 -j ACCEPT
 
 sudo systemctl stop apache2 && sudo systemctl disable apache2
+sudo apt install -y nginx
 sudo vim /etc/nginx/conf.d/default.conf
 sudo systemctl start nginx
 ```
