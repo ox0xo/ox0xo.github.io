@@ -5,7 +5,7 @@ date:   2018-12-15
 permalink: /ctf/:title
 categories: CTF
 tags: CTFd
-excerpt: CTFdを使ってオンラインCTFを開催する際の一連の手順をまとめたものです
+excerpt: CTFdを使ってオンラインCTFを開催する際の一連の手順をまとめたものです cctf2018.cf 開催中(2018/12/20 19:00 ～ 2018/12/27 19:00）
 ---
 
 * content
