@@ -3,7 +3,7 @@ layout: post
 title:  "covert channel over DNS"
 date:   2019-01-20
 permalink: /security/:title
-categories: DNS
+categories: Security
 tags: DNS iodine covert_channel
 excerpt: DNS通信に見せかけたC2通信を解析するためのアイデアを模索するものです
 ---
