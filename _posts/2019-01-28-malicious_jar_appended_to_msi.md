@@ -13,16 +13,15 @@ excerpt: VirusTotal blogで2019.1.15に紹介されたマルウェア配信テ�
 
 # 初めに
 
+このポストでは、コード署名済みmsiファイルに悪意あるJARを追加する経験を通じて、そのような手法で作成されたファイルを見極める方法を考察します。
+
 2019年01月15日にVirusTotalブログに「悪意あるJARファイルをコード署名済みmsiファイルに追加する手法」の注意喚起が掲載されました。
 コード署名とは信頼できるベンダーによって提供されたソフトウェアが改ざんされていない事を確認する手段の一つです。
-コード署名が施されたexeファイルを改ざんすると署名は無効になりますが、
-msiファイルの末尾に悪意あるコードを追加した場合は署名が無効化されません。
+コード署名が施されたexeファイルを改ざんすると署名は無効化されますが、msiファイルの末尾に悪意あるコードを追加した場合はその限りではありません。
 
-この抜け穴は悪意あるJARファイルを実行するのに効果的です。
-JARファイルはJavaリソースをアーカイブするためにZIPフォーマットを採用しており、ファイル末尾のセントラルディレクトリを参照してアーカイブされたリソースを読み取ります。
+この抜け穴は悪意あるJARファイルを実行する場面で有効です。
+JARファイルはZIPフォーマットを採用しており、ファイル末尾のセントラルディレクトリを参照してアーカイブされたリソースを読み取ります。
 つまり、ファイルの先頭がどのようなデータであろうと、末尾nバイトが正常なデータはJARとして機能します。
-
-このポストでは、コード署名済みmsiファイルに悪意あるJARを追加する経験を通じて、そのような手法で作成されたファイルを見極める方法を考察します。
 
 # 実行可能JARを作る
 
@@ -68,10 +67,11 @@ MSIファイルの後ろにsimple.jarを結合します。
 ```
 
 attached.jarのプロパティから有効なデジタル署名を確認できますが、ダブルクリックするとWindows Calcが起動します。
-JARファイルを少し書き換えれば、Windows Calcが起動した後で本来のMSIファイルの挙動に繋げることも出来そうです。
-この手法で正規のインストーラーに偽装した悪意あるJARを拡散するシナリオが想定されます。
+正規のインストーラーに偽装した悪意あるJARを拡散するシナリオが想定できます。
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/klDeYL5KzM4" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+JARファイルを少し書き換えれば、Windows Calcが起動した後で本来のMSIファイルの挙動に繋げて、悪意ある挙動をカムフラージュすることも出来そうです。
 
 # 改ざんを見極める
 
@@ -158,4 +158,4 @@ JARを埋め込んだMSIにどのような特徴があるのか調べました�
 # 参考URL
 
 - [VirusTotal: Distribution of malicious JAR appended to MSI files signed by third parties](https://blog.virustotal.com/2019/01/distribution-of-malicious-jar-appended.html)
-- [Wikipedia: ZIPファイルフォーマット](https://ja.wikipedia.org/wiki/ZIP_(%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%83%E3%83%88)
+- [Wikipedia: ZIPファイルフォーマット](https://ja.wikipedia.org/wiki/ZIP_%28%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%83%E3%83%88%29)
