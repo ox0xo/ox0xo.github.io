@@ -7,10 +7,10 @@ categories: Security
 tags: malware jar msi
 excerpt: VirusTotal blogで2019.1.15に紹介されたマルウェア配信テクニックを実証します。
 ---
-
+ 
 * content
 {:toc}
- 
+
 # 初めに
 
 このポストでは、コード署名済みmsiファイルに悪意あるJARを追加する経験を通じて、そのような手法で作成されたファイルを見極める方法を考察します。

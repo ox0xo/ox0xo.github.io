@@ -8,10 +8,10 @@ tags: MITRE ATT&CK
 excerpt: InternetWeek2018 サイバー攻撃の実態を体系化する「ATT&CK」とふれ合うBoF でLTしたスライドを校正したものです。MITRE ATT&CKを実務レベルで活用する具体的な手法を提案します。
 mathjax: false
 ---
-
+ 
 * content
 {:toc}
- 
+
 # ATT&CKの概要
 
 [ATT&CK（アタック）](https://attack.mitre.org/)はMITRE（マイター）が開発している敵対的な戦術とテクニックのナレッジベースです。

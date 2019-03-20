@@ -38,7 +38,8 @@ description_footer: This site contents the computer science and hacking.
 # xxxxx字符串
 #baidu_tongji_id: cf8506e0ef223e57ff6239944e5d46a4
 
-google_analytics_id: UA-130198376-1 # google Tracking id
+# anti hyogo police
+#google_analytics_id: UA-130198376-1 # google Tracking id
 
 # Build settings
 markdown: kramdown

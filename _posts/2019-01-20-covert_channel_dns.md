@@ -7,10 +7,10 @@ categories: Security
 tags: DNS iodine covert_channel
 excerpt: DNS通信に見せかけたC2通信を解析するためのアイデアを模索するものです
 ---
-
+ 
 * content
 {:toc}
- 
+
 # 初めに
 
 IPSを運用しているとIodine DNS Tunnelというワードを目にすることがあります。
