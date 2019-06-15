@@ -5,9 +5,17 @@ permalink: /security/
 icon: shield
 type: page
 ---
- 
+
 * content
 {:toc}
+
+* [Aircrack-NG](Aircrack)
+
+* [署名済みMSIを利用した悪意あるjarファイルの実行](malicious_jar_appended_to_msi)
+
+* [DNSを利用した隠蔽通信](covert_channel_dns)
+
+* [MITRE ATT&CKの活用](mitre_attck)
 
 * [DNSキャッシュポイズニング](dns_cache_poizoning)
 
