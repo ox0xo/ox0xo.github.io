@@ -4,7 +4,7 @@ title:  "NinjaStars CTF writeup"
 date:   2019-06-30
 permalink: /ctf/:title
 categories: CTF
-tags: NinjaStars CTF 
+tags: NinjaStars CTF IDA CyberChef gdb
 excerpt: 2019-06-30に開催されたNinjaStars CTFのWriteupです。
 ---
 
