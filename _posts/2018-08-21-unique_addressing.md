@@ -12,11 +12,11 @@ mathjax: false
 * content
 {:toc}
 
-<font color=red>このトピックではARP Spoofingというテクニックを取り扱います。
+**このトピックではARP Spoofingというテクニックを取り扱います。
 たとえ自社内であってもネットワーク管理者に許可されていないARP Spoofingは犯罪行為です。
-講師の指示が無い限りARP Spoofingを試してはいけません。</font>
+講師の指示が無い限りARP Spoofingを試してはいけません。**
 
-## L2/L3アドレスの一意性を確認する
+## アドレスの一意性
 
 ### 前置き
 
