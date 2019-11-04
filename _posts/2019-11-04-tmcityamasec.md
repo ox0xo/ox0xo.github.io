@@ -3,8 +3,8 @@ layout: post
 title:  "TMCIT and 大和セキュリティ MAIR忍者チャレンジ writeup"
 date:   2019-11-04
 permalink: /ctf/:title
-categories: CTF
-tags: CTF gdb Wireshark dnSpy
+categories: Security
+tags: malware
 excerpt: 2019-11-03、2019-11-04の2日間に渡って開催されたMAIR忍者チャレンジのWriteupです
 mathjax: false
 ---
