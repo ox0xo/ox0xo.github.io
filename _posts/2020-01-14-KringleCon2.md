@@ -3,7 +3,7 @@ layout: post
 title:  "KringleCon2 writeup"
 date:   2020-01-14
 permalink: /ctf/:title
-categories: Security
+categories: CTF
 tags: SANS KringleCon DeepBlueCLI Splunk Zeek RITA TensorFlow HTML5 CSS3
 excerpt: This is Writeup for SANS Holiday Hack Challenge 2019. Unfortunately, I did not get all the correct answers, but I have listed the nine answers I have solved. I will continue when my college exam is over.
 mathjax: false
