@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "いまから社会人大学生をやる人へ"
+title:  "社会人大学生の足跡"
 date:   2021-08-15
 permalink: /misc/:title
 categories: Misc
